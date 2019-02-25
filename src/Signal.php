@@ -1,7 +1,7 @@
 <?php
 declare(strict_types = 1);
 
-namespace Innmind\SignalHandler;
+namespace Innmind\Signals;
 
 final class Signal
 {

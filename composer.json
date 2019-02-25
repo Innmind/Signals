@@ -1,9 +1,9 @@
 {
-    "name": "innmind/signal-handler",
+    "name": "innmind/signals",
     "type": "library",
     "description": "Manage multiple callbacks per signal",
     "keywords": ["cli", "signal", "handler"],
-    "homepage": "http://github.com/Innmind/SignalHandler",
+    "homepage": "http://github.com/Innmind/Signals",
     "license": "MIT",
     "authors": [
         {
@@ -12,19 +12,19 @@
         }
     ],
     "support": {
-        "issues": "http://github.com/Innmind/SignalHandler/issues"
+        "issues": "http://github.com/Innmind/Signals/issues"
     },
     "require": {
         "php": "~7.2"
     },
     "autoload": {
         "psr-4": {
-            "Innmind\\SignalHandler\\": "src/"
+            "Innmind\\Signals\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Tests\\Innmind\\SignalHandler\\": "tests/"
+            "Tests\\Innmind\\Signals\\": "tests/"
         }
     },
     "require-dev": {

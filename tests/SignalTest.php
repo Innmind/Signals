@@ -1,9 +1,9 @@
 <?php
 declare(strict_types = 1);
 
-namespace Tests\Innmind\SignalHandler;
+namespace Tests\Innmind\Signals;
 
-use Innmind\SignalHandler\Signal;
+use Innmind\Signals\Signal;
 use PHPUnit\Framework\TestCase;
 
 class SignalTest extends TestCase
