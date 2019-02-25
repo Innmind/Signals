@@ -12,7 +12,6 @@ final class Signal
     private static $trap;
     private static $abort;
     private static $floatingPointException;
-    private static $kill;
     private static $bus;
     private static $segmentationViolation;
     private static $system;
@@ -20,7 +19,6 @@ final class Signal
     private static $alarm;
     private static $terminate;
     private static $urgent;
-    private static $stop;
     private static $terminalStop;
     private static $continue;
     private static $child;
@@ -77,11 +75,6 @@ final class Signal
         return self::$floatingPointException ?? self::$floatingPointException = new self(\SIGFPE);
     }
 
-    public static function kill(): self
-    {
-        return self::$kill ?? self::$kill = new self(\SIGKILL);
-    }
-
     public static function bus(): self
     {
         return self::$bus ?? self::$bus = new self(\SIGBUS);
@@ -115,11 +108,6 @@ final class Signal
     public static function urgent(): self
     {
         return self::$urgent ?? self::$urgent = new self(\SIGURG);
-    }
-
-    public static function stop(): self
-    {
-        return self::$stop ?? self::$stop = new self(\SIGSTOP);
     }
 
     public static function terminalStop(): self

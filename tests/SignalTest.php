@@ -22,8 +22,8 @@ class SignalTest extends TestCase
 
     public function testEquals()
     {
-        $this->assertTrue(Signal::kill()->equals(Signal::kill()));
-        $this->assertFalse(Signal::kill()->equals(Signal::terminate()));
+        $this->assertTrue(Signal::illegal()->equals(Signal::illegal()));
+        $this->assertFalse(Signal::illegal()->equals(Signal::terminate()));
     }
 
     public function signals(): array
@@ -36,7 +36,6 @@ class SignalTest extends TestCase
             [\SIGTRAP, 'trap'],
             [\SIGABRT, 'abort'],
             [\SIGFPE, 'floatingPointException'],
-            [\SIGKILL, 'kill'],
             [\SIGBUS, 'bus'],
             [\SIGSEGV, 'segmentationViolation'],
             [\SIGSYS, 'system'],
@@ -44,7 +43,6 @@ class SignalTest extends TestCase
             [\SIGALRM, 'alarm'],
             [\SIGTERM, 'terminate'],
             [\SIGURG, 'urgent'],
-            [\SIGSTOP, 'stop'],
             [\SIGTSTP, 'terminalStop'],
             [\SIGCONT, 'continue'],
             [\SIGCHLD, 'child'],
