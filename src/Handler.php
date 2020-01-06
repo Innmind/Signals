@@ -4,21 +4,24 @@ declare(strict_types = 1);
 namespace Innmind\Signals;
 
 use Innmind\Immutable\{
-    StreamInterface,
-    Stream,
+    Sequence,
     Map,
 };
 
 final class Handler
 {
-    private $handlers;
-    private $ints;
-    private $wasAsync;
-    private $resetted = false;
+    /** @var Map<int, Sequence<callable>> */
+    private Map $handlers;
+    /** @var Map<int, Signal> */
+    private Map $ints;
+    private bool $wasAsync;
+    private bool $resetted = false;
 
     public function __construct()
     {
-        $this->handlers = Map::of('int', StreamInterface::class);
+        /** @var Map<int, Sequence<callable>> */
+        $this->handlers = Map::of('int', Sequence::class);
+        /** @var Map<int, Signal> */
         $this->ints = Map::of('int', Signal::class);
         $this->wasAsync = \pcntl_async_signals();
         \pcntl_async_signals(true);
@@ -31,30 +34,28 @@ final class Handler
         }
 
         $handlers = $this->install($signal);
-        $this->handlers = $this->handlers->put(
+        $this->handlers = ($this->handlers)(
             $signal->toInt(),
-            $handlers->add($listener)
+            ($handlers)($listener)
         );
-        $this->ints = $this->ints->put($signal->toInt(), $signal);
+        $this->ints = ($this->ints)($signal->toInt(), $signal);
     }
 
     public function remove(callable $listener): void
     {
-        $this->handlers = $this
-            ->handlers
-            ->map(static function(int $signal, StreamInterface $listeners) use ($listener): StreamInterface {
-                return $listeners->filter(static function(callable $callable) use ($listener): bool {
-                    return $callable !== $listener;
-                });
-            })
-            ->foreach(static function(int $signal, StreamInterface $listeners): void {
-                if ($listeners->empty()) {
-                    \pcntl_signal($signal, \SIG_DFL); // restore default handler
-                }
-            })
-            ->filter(static function(int $signal, StreamInterface $listeners): bool {
-                return !$listeners->empty();
-            });
+        $handlers = $this->handlers->map(
+            static fn(int $signal, Sequence $listeners): Sequence => $listeners->filter(
+                static fn(callable $callable): bool => $callable !== $listener,
+            ),
+        );
+        $handlers->foreach(static function(int $signal, Sequence $listeners): void {
+            if ($listeners->empty()) {
+                \pcntl_signal($signal, \SIG_DFL); // restore default handler
+            }
+        });
+        $this->handlers = $handlers->filter(
+            static fn(int $signal, Sequence $listeners): bool => !$listeners->empty()
+        );
     }
 
     public function reset(): void
@@ -69,21 +70,27 @@ final class Handler
     }
 
     /**
-     * @return StreamInterface<callable>
+     * @return Sequence<callable>
      */
-    private function install(Signal $signal): StreamInterface
+    private function install(Signal $signal): Sequence
     {
         if ($this->handlers->contains($signal->toInt())) {
             return $this->handlers->get($signal->toInt());;
         }
 
+        /** @psalm-suppress MissingClosureParamType */
         \pcntl_signal($signal->toInt(), function(...$args): void {
+            /** @psalm-suppress MixedArgument */
             $this->dispatch(...$args);
         });
 
-        return Stream::of('callable');
+        /** @var Sequence<callable> */
+        return Sequence::of('callable');
     }
 
+    /**
+     * @param mixed $info
+     */
     private function dispatch(int $signal, $info): void
     {
         if (!$this->handlers->contains($signal)) {
@@ -92,32 +99,21 @@ final class Handler
 
         $handlers = $this->handlers->get($signal);
         $signal = $this->ints->get($signal);
-        $structure = Map::of('string', 'object');
+        $structure = null;
 
         if (\is_array($info)) {
-            if (isset($info['code'])) {
-                $structure = $structure->put('code', new Signal\Code($info['code']));
-            }
-
-            if (isset($info['errno'])) {
-                $structure = $structure->put('errno', new Signal\ErrorNumber($info['errno']));
-            }
-
-            if (isset($info['pid'])) {
-                $structure = $structure->put('pid', new Signal\SendingProcessId($info['pid']));
-            }
-
-            if (isset($info['uid'])) {
-                $structure = $structure->put('uid', new Signal\SendingProcessUserId($info['uid']));
-            }
-
-            if (isset($info['status'])) {
-                $structure = $structure->put('status', new Signal\Status($info['status']));
-            }
+            /** @psalm-suppress MixedArgument */
+            $structure = new Info(
+                isset($info['code']) ? new Signal\Code($info['code']) : null,
+                isset($info['errno']) ? new Signal\ErrorNumber($info['errno']) : null,
+                isset($info['pid']) ? new Signal\SendingProcessId($info['pid']) : null,
+                isset($info['uid']) ? new Signal\SendingProcessUserId($info['uid']) : null,
+                isset($info['status']) ? new Signal\Status($info['status']) : null,
+            );
         }
 
         $handlers->foreach(static function(callable $listen) use ($signal, $structure): void {
-            $listen($signal, $structure);
+            $listen($signal, $structure ?? new Info);
         });
     }
 }
