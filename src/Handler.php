@@ -11,10 +11,10 @@ use Innmind\Immutable\{
 
 final class Handler
 {
-    private $handlers;
-    private $ints;
-    private $wasAsync;
-    private $resetted = false;
+    private Map $handlers;
+    private Map $ints;
+    private bool $wasAsync;
+    private bool $resetted = false;
 
     public function __construct()
     {

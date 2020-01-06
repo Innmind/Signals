@@ -5,7 +5,7 @@ namespace Innmind\Signals\Signal;
 
 final class Status
 {
-    private $value;
+    private int $value;
 
     public function __construct(int $value)
     {

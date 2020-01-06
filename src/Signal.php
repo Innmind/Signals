@@ -5,35 +5,35 @@ namespace Innmind\Signals;
 
 final class Signal
 {
-    private static $hangup;
-    private static $interrupt;
-    private static $quit;
-    private static $illegal;
-    private static $trap;
-    private static $abort;
-    private static $floatingPointException;
-    private static $bus;
-    private static $segmentationViolation;
-    private static $system;
-    private static $pipe;
-    private static $alarm;
-    private static $terminate;
-    private static $urgent;
-    private static $terminalStop;
-    private static $continue;
-    private static $child;
-    private static $ttyIn;
-    private static $ttyOut;
-    private static $io;
-    private static $exceedsCpu;
-    private static $exceedsFileSize;
-    private static $virtualTimerExpired;
-    private static $profilingTimerExpired;
-    private static $terminalWindowsSizeChanged;
-    private static $userDefinedSignal1;
-    private static $userDefinedSignal2;
+    private static self $hangup;
+    private static self $interrupt;
+    private static self $quit;
+    private static self $illegal;
+    private static self $trap;
+    private static self $abort;
+    private static self $floatingPointException;
+    private static self $bus;
+    private static self $segmentationViolation;
+    private static self $system;
+    private static self $pipe;
+    private static self $alarm;
+    private static self $terminate;
+    private static self $urgent;
+    private static self $terminalStop;
+    private static self $continue;
+    private static self $child;
+    private static self $ttyIn;
+    private static self $ttyOut;
+    private static self $io;
+    private static self $exceedsCpu;
+    private static self $exceedsFileSize;
+    private static self $virtualTimerExpired;
+    private static self $profilingTimerExpired;
+    private static self $terminalWindowsSizeChanged;
+    private static self $userDefinedSignal1;
+    private static self $userDefinedSignal2;
 
-    private $value;
+    private int $value;
 
     private function __construct(int $value)
     {
