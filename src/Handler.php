@@ -4,8 +4,7 @@ declare(strict_types = 1);
 namespace Innmind\Signals;
 
 use Innmind\Immutable\{
-    StreamInterface,
-    Stream,
+    Sequence,
     Map,
 };
 
@@ -18,7 +17,7 @@ final class Handler
 
     public function __construct()
     {
-        $this->handlers = Map::of('int', StreamInterface::class);
+        $this->handlers = Map::of('int', Sequence::class);
         $this->ints = Map::of('int', Signal::class);
         $this->wasAsync = \pcntl_async_signals();
         \pcntl_async_signals(true);
@@ -40,21 +39,19 @@ final class Handler
 
     public function remove(callable $listener): void
     {
-        $this->handlers = $this
-            ->handlers
-            ->map(static function(int $signal, StreamInterface $listeners) use ($listener): StreamInterface {
-                return $listeners->filter(static function(callable $callable) use ($listener): bool {
-                    return $callable !== $listener;
-                });
-            })
-            ->foreach(static function(int $signal, StreamInterface $listeners): void {
-                if ($listeners->empty()) {
-                    \pcntl_signal($signal, \SIG_DFL); // restore default handler
-                }
-            })
-            ->filter(static function(int $signal, StreamInterface $listeners): bool {
-                return !$listeners->empty();
+        $handlers = $this->handlers->map(static function(int $signal, Sequence $listeners) use ($listener): Sequence {
+            return $listeners->filter(static function(callable $callable) use ($listener): bool {
+                return $callable !== $listener;
             });
+        });
+        $handlers->foreach(static function(int $signal, Sequence $listeners): void {
+            if ($listeners->empty()) {
+                \pcntl_signal($signal, \SIG_DFL); // restore default handler
+            }
+        });
+        $this->handlers = $handlers->filter(static function(int $signal, Sequence $listeners): bool {
+            return !$listeners->empty();
+        });
     }
 
     public function reset(): void
@@ -69,9 +66,9 @@ final class Handler
     }
 
     /**
-     * @return StreamInterface<callable>
+     * @return Sequence<callable>
      */
-    private function install(Signal $signal): StreamInterface
+    private function install(Signal $signal): Sequence
     {
         if ($this->handlers->contains($signal->toInt())) {
             return $this->handlers->get($signal->toInt());;
@@ -81,7 +78,7 @@ final class Handler
             $this->dispatch(...$args);
         });
 
-        return Stream::of('callable');
+        return Sequence::of('callable');
     }
 
     private function dispatch(int $signal, $info): void
