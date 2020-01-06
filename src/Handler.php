@@ -30,28 +30,28 @@ final class Handler
         }
 
         $handlers = $this->install($signal);
-        $this->handlers = $this->handlers->put(
+        $this->handlers = ($this->handlers)(
             $signal->toInt(),
-            $handlers->add($listener)
+            ($handlers)($listener)
         );
-        $this->ints = $this->ints->put($signal->toInt(), $signal);
+        $this->ints = ($this->ints)($signal->toInt(), $signal);
     }
 
     public function remove(callable $listener): void
     {
-        $handlers = $this->handlers->map(static function(int $signal, Sequence $listeners) use ($listener): Sequence {
-            return $listeners->filter(static function(callable $callable) use ($listener): bool {
-                return $callable !== $listener;
-            });
-        });
+        $handlers = $this->handlers->map(
+            static fn(int $signal, Sequence $listeners): Sequence => $listeners->filter(
+                static fn(callable $callable): bool => $callable !== $listener,
+            ),
+        );
         $handlers->foreach(static function(int $signal, Sequence $listeners): void {
             if ($listeners->empty()) {
                 \pcntl_signal($signal, \SIG_DFL); // restore default handler
             }
         });
-        $this->handlers = $handlers->filter(static function(int $signal, Sequence $listeners): bool {
-            return !$listeners->empty();
-        });
+        $this->handlers = $handlers->filter(
+            static fn(int $signal, Sequence $listeners): bool => !$listeners->empty()
+        );
     }
 
     public function reset(): void
@@ -93,23 +93,23 @@ final class Handler
 
         if (\is_array($info)) {
             if (isset($info['code'])) {
-                $structure = $structure->put('code', new Signal\Code($info['code']));
+                $structure = ($structure)('code', new Signal\Code($info['code']));
             }
 
             if (isset($info['errno'])) {
-                $structure = $structure->put('errno', new Signal\ErrorNumber($info['errno']));
+                $structure = ($structure)('errno', new Signal\ErrorNumber($info['errno']));
             }
 
             if (isset($info['pid'])) {
-                $structure = $structure->put('pid', new Signal\SendingProcessId($info['pid']));
+                $structure = ($structure)('pid', new Signal\SendingProcessId($info['pid']));
             }
 
             if (isset($info['uid'])) {
-                $structure = $structure->put('uid', new Signal\SendingProcessUserId($info['uid']));
+                $structure = ($structure)('uid', new Signal\SendingProcessUserId($info['uid']));
             }
 
             if (isset($info['status'])) {
-                $structure = $structure->put('status', new Signal\Status($info['status']));
+                $structure = ($structure)('status', new Signal\Status($info['status']));
             }
         }
 
