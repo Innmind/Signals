@@ -19,15 +19,15 @@ composer require innmind/signals
 use Innmind\Signals\{
     Handler,
     Signal,
+    Info,
 };
-use Innmind\Immutable\MapInterface;
 
 $handler = new Handler; // automatically enable async signal at instanciation
 
-$handler->listen(Signal::interrupt(), function(Signal $signal, MapInterface $info): void {
+$handler->listen(Signal::interrupt(), function(Signal $signal, Info $info): void {
     echo 'foo';
 });
-$handler->listen(Signal::interrupt(), function(Signal $signal, MapInterface $info): void {
+$handler->listen(Signal::interrupt(), function(Signal $signal, Info $info): void {
     echo 'bar';
 });
 
