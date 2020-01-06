@@ -99,37 +99,21 @@ final class Handler
 
         $handlers = $this->handlers->get($signal);
         $signal = $this->ints->get($signal);
-        $structure = Map::of('string', 'object');
+        $structure = null;
 
         if (\is_array($info)) {
-            if (isset($info['code'])) {
-                /** @psalm-suppress MixedArgument */
-                $structure = ($structure)('code', new Signal\Code($info['code']));
-            }
-
-            if (isset($info['errno'])) {
-                /** @psalm-suppress MixedArgument */
-                $structure = ($structure)('errno', new Signal\ErrorNumber($info['errno']));
-            }
-
-            if (isset($info['pid'])) {
-                /** @psalm-suppress MixedArgument */
-                $structure = ($structure)('pid', new Signal\SendingProcessId($info['pid']));
-            }
-
-            if (isset($info['uid'])) {
-                /** @psalm-suppress MixedArgument */
-                $structure = ($structure)('uid', new Signal\SendingProcessUserId($info['uid']));
-            }
-
-            if (isset($info['status'])) {
-                /** @psalm-suppress MixedArgument */
-                $structure = ($structure)('status', new Signal\Status($info['status']));
-            }
+            /** @psalm-suppress MixedArgument */
+            $structure = new Info(
+                isset($info['code']) ? new Signal\Code($info['code']) : null,
+                isset($info['errno']) ? new Signal\ErrorNumber($info['errno']) : null,
+                isset($info['pid']) ? new Signal\SendingProcessId($info['pid']) : null,
+                isset($info['uid']) ? new Signal\SendingProcessUserId($info['uid']) : null,
+                isset($info['status']) ? new Signal\Status($info['status']) : null,
+            );
         }
 
         $handlers->foreach(static function(callable $listen) use ($signal, $structure): void {
-            $listen($signal, $structure);
+            $listen($signal, $structure ?? new Info);
         });
     }
 }
