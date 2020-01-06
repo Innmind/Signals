@@ -2,9 +2,8 @@
 
 | `develop` |
 |-----------|
-| [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/Innmind/DependencyGraph/badges/quality-score.png?b=develop)](https://scrutinizer-ci.com/g/Innmind/DependencyGraph/?branch=develop) |
-| [![Code Coverage](https://scrutinizer-ci.com/g/Innmind/DependencyGraph/badges/coverage.png?b=develop)](https://scrutinizer-ci.com/g/Innmind/DependencyGraph/?branch=develop) |
-| [![Build Status](https://scrutinizer-ci.com/g/Innmind/DependencyGraph/badges/build.png?b=develop)](https://scrutinizer-ci.com/g/Innmind/DependencyGraph/build-status/develop) |
+| [![codecov](https://codecov.io/gh/Innmind/Signals/branch/develop/graph/badge.svg)](https://codecov.io/gh/Innmind/Signals) |
+| [![Build Status](https://github.com/Innmind/Signals/workflows/CI/badge.svg)](https://github.com/Innmind/Signals/actions?query=workflow%3ACI) |
 
 Small abstraction on top of `pcntl_signal` to allow to register multiple callables for a single signal.
 
