@@ -10,14 +10,18 @@ use Innmind\Immutable\{
 
 final class Handler
 {
+    /** @var Map<int, Sequence<callable>> */
     private Map $handlers;
+    /** @var Map<int, Signal> */
     private Map $ints;
     private bool $wasAsync;
     private bool $resetted = false;
 
     public function __construct()
     {
+        /** @var Map<int, Sequence<callable>> */
         $this->handlers = Map::of('int', Sequence::class);
+        /** @var Map<int, Signal> */
         $this->ints = Map::of('int', Signal::class);
         $this->wasAsync = \pcntl_async_signals();
         \pcntl_async_signals(true);
@@ -74,13 +78,19 @@ final class Handler
             return $this->handlers->get($signal->toInt());;
         }
 
+        /** @psalm-suppress MissingClosureParamType */
         \pcntl_signal($signal->toInt(), function(...$args): void {
+            /** @psalm-suppress MixedArgument */
             $this->dispatch(...$args);
         });
 
+        /** @var Sequence<callable> */
         return Sequence::of('callable');
     }
 
+    /**
+     * @param mixed $info
+     */
     private function dispatch(int $signal, $info): void
     {
         if (!$this->handlers->contains($signal)) {
@@ -93,22 +103,27 @@ final class Handler
 
         if (\is_array($info)) {
             if (isset($info['code'])) {
+                /** @psalm-suppress MixedArgument */
                 $structure = ($structure)('code', new Signal\Code($info['code']));
             }
 
             if (isset($info['errno'])) {
+                /** @psalm-suppress MixedArgument */
                 $structure = ($structure)('errno', new Signal\ErrorNumber($info['errno']));
             }
 
             if (isset($info['pid'])) {
+                /** @psalm-suppress MixedArgument */
                 $structure = ($structure)('pid', new Signal\SendingProcessId($info['pid']));
             }
 
             if (isset($info['uid'])) {
+                /** @psalm-suppress MixedArgument */
                 $structure = ($structure)('uid', new Signal\SendingProcessUserId($info['uid']));
             }
 
             if (isset($info['status'])) {
+                /** @psalm-suppress MixedArgument */
                 $structure = ($structure)('status', new Signal\Status($info['status']));
             }
         }
