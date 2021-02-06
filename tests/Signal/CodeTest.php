@@ -5,19 +5,19 @@ namespace Tests\Innmind\Signals\Signal;
 
 use Innmind\Signals\Signal\Code;
 use PHPUnit\Framework\TestCase;
-use Eris\{
-    Generator,
-    TestTrait,
+use Innmind\BlackBox\{
+    PHPUnit\BlackBox,
+    Set,
 };
 
 class CodeTest extends TestCase
 {
-    use TestTrait;
+    use BlackBox;
 
     public function testInterface()
     {
         $this
-            ->forAll(Generator\int())
+            ->forAll(Set\Integers::any())
             ->then(function(int $int): void {
                 $this->assertSame($int, (new Code($int))->toInt());
             });
