@@ -39,7 +39,7 @@ class HandlerTest extends TestCase
             ++$count;
         });
 
-        sleep(2); // wait for child to stop
+        \sleep(2); // wait for child to stop
 
         $this->assertSame(2, $count);
         $this->assertSame(['first', 'second'], $order);
@@ -66,7 +66,7 @@ class HandlerTest extends TestCase
         });
         $this->assertNull($handlers->remove($first));
 
-        sleep(2); // wait for child to stop
+        \sleep(2); // wait for child to stop
 
         $this->assertSame(1, $count);
         $this->assertSame(['second'], $order);
@@ -81,7 +81,7 @@ class HandlerTest extends TestCase
 
         $this->fork();
 
-        $listener = function($signal) use (&$order, &$count): void {
+        $listener = static function($signal) use (&$order, &$count): void {
             $order[] = 'first';
             ++$count;
         };
@@ -92,7 +92,7 @@ class HandlerTest extends TestCase
 
         $handlers->listen(Signal::child(), $listener);
 
-        sleep(2); // wait for child to stop
+        \sleep(2); // wait for child to stop
 
         $this->assertSame(0, $count);
         $this->assertSame([], $order);
@@ -107,7 +107,7 @@ class HandlerTest extends TestCase
 
         $this->fork();
 
-        $listener = function($signal) use (&$order, &$count): void {
+        $listener = static function($signal) use (&$order, &$count): void {
             $order[] = 'first';
             ++$count;
         };
@@ -116,7 +116,7 @@ class HandlerTest extends TestCase
 
         $this->assertSame($wasAsync, \pcntl_async_signals());
 
-        sleep(2); // wait for child to stop
+        \sleep(2); // wait for child to stop
 
         $this->assertSame(0, $count);
         $this->assertSame([], $order);
@@ -125,7 +125,8 @@ class HandlerTest extends TestCase
     private function fork(): void
     {
         if (\pcntl_fork() === 0) {
-            sleep(1);
+            \sleep(1);
+
             exit;
         }
     }
