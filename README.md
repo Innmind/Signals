@@ -1,9 +1,8 @@
 # Signals
 
-| `develop` |
-|-----------|
-| [![codecov](https://codecov.io/gh/Innmind/Signals/branch/develop/graph/badge.svg)](https://codecov.io/gh/Innmind/Signals) |
-| [![Build Status](https://github.com/Innmind/Signals/workflows/CI/badge.svg)](https://github.com/Innmind/Signals/actions?query=workflow%3ACI) |
+[![Build Status](https://github.com/innmind/signals/workflows/CI/badge.svg?branch=master)](https://github.com/innmind/signals/actions?query=workflow%3ACI)
+[![codecov](https://codecov.io/gh/innmind/signals/branch/develop/graph/badge.svg)](https://codecov.io/gh/innmind/signals)
+[![Type Coverage](https://shepherd.dev/github/innmind/signals/coverage.svg)](https://shepherd.dev/github/innmind/signals)
 
 Small abstraction on top of `pcntl_signal` to allow to register multiple callables for a single signal.
 
