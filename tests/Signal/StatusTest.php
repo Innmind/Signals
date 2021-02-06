@@ -5,19 +5,19 @@ namespace Tests\Innmind\Signals\Signal;
 
 use Innmind\Signals\Signal\Status;
 use PHPUnit\Framework\TestCase;
-use Eris\{
-    Generator,
-    TestTrait,
+use Innmind\BlackBox\{
+    PHPUnit\BlackBox,
+    Set,
 };
 
 class StatusTest extends TestCase
 {
-    use TestTrait;
+    use BlackBox;
 
     public function testInterface()
     {
         $this
-            ->forAll(Generator\int())
+            ->forAll(Set\Integers::any())
             ->then(function(int $int): void {
                 $this->assertSame($int, (new Status($int))->toInt());
             });

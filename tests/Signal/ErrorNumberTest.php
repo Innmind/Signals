@@ -5,19 +5,19 @@ namespace Tests\Innmind\Signals\Signal;
 
 use Innmind\Signals\Signal\ErrorNumber;
 use PHPUnit\Framework\TestCase;
-use Eris\{
-    Generator,
-    TestTrait,
+use Innmind\BlackBox\{
+    PHPUnit\BlackBox,
+    Set,
 };
 
 class ErrorNumberTest extends TestCase
 {
-    use TestTrait;
+    use BlackBox;
 
     public function testInterface()
     {
         $this
-            ->forAll(Generator\int())
+            ->forAll(Set\Integers::any())
             ->then(function(int $int): void {
                 $this->assertSame($int, (new ErrorNumber($int))->toInt());
             });

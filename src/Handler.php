@@ -75,7 +75,7 @@ final class Handler
     private function install(Signal $signal): Sequence
     {
         if ($this->handlers->contains($signal->toInt())) {
-            return $this->handlers->get($signal->toInt());;
+            return $this->handlers->get($signal->toInt());
         }
 
         /** @psalm-suppress MissingClosureParamType */
