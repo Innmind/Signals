@@ -10,7 +10,7 @@ use Innmind\Immutable\{
 
 final class Handler
 {
-    /** @var Map<int, Sequence<callable>> */
+    /** @var Map<int, Sequence<callable(Signal, Info): void>> */
     private Map $handlers;
     /** @var Map<int, Signal> */
     private Map $ints;
@@ -19,7 +19,7 @@ final class Handler
 
     public function __construct()
     {
-        /** @var Map<int, Sequence<callable>> */
+        /** @var Map<int, Sequence<callable(Signal, Info): void>> */
         $this->handlers = Map::of('int', Sequence::class);
         /** @var Map<int, Signal> */
         $this->ints = Map::of('int', Signal::class);
@@ -27,6 +27,9 @@ final class Handler
         \pcntl_async_signals(true);
     }
 
+    /**
+     * @param callable(Signal, Info): void $listener
+     */
     public function listen(Signal $signal, callable $listener): void
     {
         if ($this->resetted) {
@@ -41,6 +44,9 @@ final class Handler
         $this->ints = ($this->ints)($signal->toInt(), $signal);
     }
 
+    /**
+     * @param callable(Signal, Info): void $listener
+     */
     public function remove(callable $listener): void
     {
         $handlers = $this->handlers->map(
@@ -70,7 +76,7 @@ final class Handler
     }
 
     /**
-     * @return Sequence<callable>
+     * @return Sequence<callable(Signal, Info): void>
      */
     private function install(Signal $signal): Sequence
     {
@@ -79,12 +85,12 @@ final class Handler
         }
 
         /** @psalm-suppress MissingClosureParamType */
-        \pcntl_signal($signal->toInt(), function(...$args): void {
+        \pcntl_signal($signal->toInt(), function(int $signo, $siginfo): void {
             /** @psalm-suppress MixedArgument */
-            $this->dispatch(...$args);
+            $this->dispatch($signo, $siginfo);
         });
 
-        /** @var Sequence<callable> */
+        /** @var Sequence<callable(Signal, Info): void> */
         return Sequence::of('callable');
     }
 
