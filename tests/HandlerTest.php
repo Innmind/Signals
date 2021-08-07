@@ -90,7 +90,12 @@ class HandlerTest extends TestCase
         $this->assertNull($handlers->reset());
         $this->assertSame($wasAsync, \pcntl_async_signals());
 
-        $handlers->listen(Signal::child(), $listener);
+        try {
+            $handlers->listen(Signal::child(), $listener);
+            $this->fail('it should throw');
+        } catch (\Exception $e) {
+            $this->assertInstanceOf(\LogicException::class, $e);
+        }
 
         \sleep(2); // wait for child to stop
 

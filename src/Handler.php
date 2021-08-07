@@ -33,7 +33,7 @@ final class Handler
     public function listen(Signal $signal, callable $listener): void
     {
         if ($this->resetted) {
-            return;
+            throw new \LogicException('Resetted handler is no longer usable');
         }
 
         $handlers = $this->install($signal);
