@@ -5,6 +5,9 @@ namespace Innmind\Signals;
 
 use Innmind\Immutable\Maybe;
 
+/**
+ * @psalm-immutable
+ */
 final class Info
 {
     /** @var Maybe<Signal\Code> */
