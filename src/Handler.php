@@ -20,9 +20,9 @@ final class Handler
     public function __construct()
     {
         /** @var Map<int, Sequence<callable(Signal, Info): void>> */
-        $this->handlers = Map::of('int', Sequence::class);
+        $this->handlers = Map::of();
         /** @var Map<int, Signal> */
-        $this->ints = Map::of('int', Signal::class);
+        $this->ints = Map::of();
         $this->wasAsync = \pcntl_async_signals();
         \pcntl_async_signals(true);
     }
@@ -54,7 +54,7 @@ final class Handler
                 static fn(callable $callable): bool => $callable !== $listener,
             ),
         );
-        $handlers->foreach(static function(int $signal, Sequence $listeners): void {
+        $_ = $handlers->foreach(static function(int $signal, Sequence $listeners): void {
             if ($listeners->empty()) {
                 \pcntl_signal($signal, \SIG_DFL); // restore default handler
             }
@@ -66,7 +66,7 @@ final class Handler
 
     public function reset(): void
     {
-        $this->handlers->foreach(static function(int $signal): void {
+        $_ = $this->handlers->foreach(static function(int $signal): void {
             \pcntl_signal($signal, \SIG_DFL);
         });
         \pcntl_async_signals($this->wasAsync);
@@ -80,18 +80,22 @@ final class Handler
      */
     private function install(Signal $signal): Sequence
     {
-        if ($this->handlers->contains($signal->toInt())) {
-            return $this->handlers->get($signal->toInt());
-        }
+        return $this
+            ->handlers
+            ->get($signal->toInt())
+            ->match(
+                static fn($listeners) => $listeners,
+                function() use ($signal) {
+                    /** @psalm-suppress MissingClosureParamType */
+                    \pcntl_signal($signal->toInt(), function(int $signo, $siginfo): void {
+                        /** @psalm-suppress MixedArgument */
+                        $this->dispatch($signo, $siginfo);
+                    });
 
-        /** @psalm-suppress MissingClosureParamType */
-        \pcntl_signal($signal->toInt(), function(int $signo, $siginfo): void {
-            /** @psalm-suppress MixedArgument */
-            $this->dispatch($signo, $siginfo);
-        });
-
-        /** @var Sequence<callable(Signal, Info): void> */
-        return Sequence::of('callable');
+                    /** @var Sequence<callable(Signal, Info): void> */
+                    return Sequence::of();
+                },
+            );
     }
 
     /**
@@ -99,13 +103,7 @@ final class Handler
      */
     private function dispatch(int $signal, $info): void
     {
-        if (!$this->handlers->contains($signal)) {
-            return;
-        }
-
-        $handlers = $this->handlers->get($signal);
-        $signal = $this->ints->get($signal);
-        $structure = null;
+        $structure = new Info;
 
         if (\is_array($info)) {
             /** @psalm-suppress MixedArgument */
@@ -118,8 +116,24 @@ final class Handler
             );
         }
 
-        $handlers->foreach(static function(callable $listen) use ($signal, $structure): void {
-            $listen($signal, $structure ?? new Info);
-        });
+        /**
+         * @psalm-suppress MissingClosureReturnType
+         * @var callable(callable(Signal, Info): void): void
+         */
+        $call = $this
+            ->ints
+            ->get($signal)
+            ->match(
+                static fn($signal) => static fn(callable $listen) => $listen($signal, $structure),
+                static fn() => static fn() => null,
+            );
+        $_ = $this
+            ->handlers
+            ->get($signal)
+            ->match(
+                static fn($listeners) => $listeners,
+                static fn() => Sequence::of(),
+            )
+            ->foreach(static fn(callable $listener) => $call($listener));
     }
 }
