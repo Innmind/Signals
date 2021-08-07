@@ -6,6 +6,7 @@ namespace Innmind\Signals;
 use Innmind\Immutable\{
     Sequence,
     Map,
+    Maybe,
 };
 
 final class Handler
@@ -103,18 +104,15 @@ final class Handler
      */
     private function dispatch(int $signal, $info): void
     {
-        $structure = new Info;
-
-        if (\is_array($info)) {
-            /** @psalm-suppress MixedArgument */
-            $structure = new Info(
-                isset($info['code']) ? new Signal\Code($info['code']) : null,
-                isset($info['errno']) ? new Signal\ErrorNumber($info['errno']) : null,
-                isset($info['pid']) ? new Signal\SendingProcessId($info['pid']) : null,
-                isset($info['uid']) ? new Signal\SendingProcessUserId($info['uid']) : null,
-                isset($info['status']) ? new Signal\Status($info['status']) : null,
-            );
-        }
+        $info = \is_array($info) ? $info : [];
+        /** @psalm-suppress MixedArgument */
+        $structure = new Info(
+            Maybe::of($info['code'] ?? null)->map(static fn($code) => new Signal\Code($code)),
+            Maybe::of($info['errno'] ?? null)->map(static fn($errno) => new Signal\ErrorNumber($errno)),
+            Maybe::of($info['pid'] ?? null)->map(static fn($pid) => new Signal\SendingProcessId($pid)),
+            Maybe::of($info['uid'] ?? null)->map(static fn($uid) => new Signal\SendingProcessUserId($uid)),
+            Maybe::of($info['status'] ?? null)->map(static fn($status) => new Signal\Status($status)),
+        );
 
         /**
          * @psalm-suppress MissingClosureReturnType
