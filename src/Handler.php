@@ -50,7 +50,7 @@ final class Handler
     public function remove(callable $listener): void
     {
         $handlers = $this->handlers->map(
-            static fn(int $signal, Sequence $listeners): Sequence => $listeners->filter(
+            static fn(int $_, Sequence $listeners): Sequence => $listeners->filter(
                 static fn(callable $callable): bool => $callable !== $listener,
             ),
         );
@@ -60,7 +60,7 @@ final class Handler
             }
         });
         $this->handlers = $handlers->filter(
-            static fn(int $signal, Sequence $listeners): bool => !$listeners->empty()
+            static fn(int $_, Sequence $listeners): bool => !$listeners->empty()
         );
     }
 
