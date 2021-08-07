@@ -17,7 +17,8 @@ class SignalTest extends TestCase
 
         $this->assertInstanceOf(Signal::class, $signal);
         $this->assertSame($value, $signal->toInt());
-        $this->assertSame($signal, Signal::$name());
+        $this->assertEquals($signal, Signal::$name());
+        $this->assertTrue($signal->equals(Signal::$name()));
     }
 
     public function testEquals()

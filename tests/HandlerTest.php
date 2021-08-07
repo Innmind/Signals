@@ -29,12 +29,12 @@ class HandlerTest extends TestCase
         $this->fork();
 
         $this->assertNull($handlers->listen(Signal::child(), function($signal) use (&$order, &$count): void {
-            $this->assertSame(Signal::child(), $signal);
+            $this->assertEquals(Signal::child(), $signal);
             $order[] = 'first';
             ++$count;
         }));
         $handlers->listen(Signal::child(), function($signal) use (&$order, &$count): void {
-            $this->assertSame(Signal::child(), $signal);
+            $this->assertEquals(Signal::child(), $signal);
             $order[] = 'second';
             ++$count;
         });
@@ -54,13 +54,13 @@ class HandlerTest extends TestCase
         $this->fork();
 
         $first = function($signal) use (&$order, &$count): void {
-            $this->assertSame(Signal::child(), $signal);
+            $this->assertEquals(Signal::child(), $signal);
             $order[] = 'first';
             ++$count;
         };
         $handlers->listen(Signal::child(), $first);
         $handlers->listen(Signal::child(), function($signal) use (&$order, &$count): void {
-            $this->assertSame(Signal::child(), $signal);
+            $this->assertEquals(Signal::child(), $signal);
             $order[] = 'second';
             ++$count;
         });
