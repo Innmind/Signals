@@ -23,10 +23,10 @@ use Innmind\Signals\{
 
 $handler = new Handler; // automatically enable async signal at instanciation
 
-$handler->listen(Signal::interrupt(), function(Signal $signal, Info $info): void {
+$handler->listen(Signal::interrupt, function(Signal $signal, Info $info): void {
     echo 'foo';
 });
-$handler->listen(Signal::interrupt(), function(Signal $signal, Info $info): void {
+$handler->listen(Signal::interrupt, function(Signal $signal, Info $info): void {
     echo 'bar';
 });
 
