@@ -81,9 +81,7 @@ final class Handler
             ->match(
                 static fn($listeners) => $listeners,
                 function() use ($signal) {
-                    /** @psalm-suppress MissingClosureParamType */
-                    \pcntl_signal($signal->toInt(), function(int $signo, $siginfo): void {
-                        /** @psalm-suppress MixedArgument */
+                    \pcntl_signal($signal->toInt(), function(int $signo, mixed $siginfo): void {
                         $this->dispatch(Signal::of($signo), $siginfo);
                     });
 
@@ -93,10 +91,7 @@ final class Handler
             );
     }
 
-    /**
-     * @param mixed $info
-     */
-    private function dispatch(Signal $signal, $info): void
+    private function dispatch(Signal $signal, mixed $info): void
     {
         $info = \is_array($info) ? $info : [];
         /** @psalm-suppress MixedArgument */
