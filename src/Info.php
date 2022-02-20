@@ -3,20 +3,37 @@ declare(strict_types = 1);
 
 namespace Innmind\Signals;
 
+use Innmind\Immutable\Maybe;
+
+/**
+ * @psalm-immutable
+ */
 final class Info
 {
-    private ?Signal\Code $code;
-    private ?Signal\ErrorNumber $errorNumber;
-    private ?Signal\SendingProcessId $sendingProcessId;
-    private ?Signal\SendingProcessUserId $sendingProcessUserId;
-    private ?Signal\Status $status;
+    /** @var Maybe<Signal\Code> */
+    private Maybe $code;
+    /** @var Maybe<Signal\ErrorNumber> */
+    private Maybe $errorNumber;
+    /** @var Maybe<Signal\SendingProcessId> */
+    private Maybe $sendingProcessId;
+    /** @var Maybe<Signal\SendingProcessUserId> */
+    private Maybe $sendingProcessUserId;
+    /** @var Maybe<Signal\Status> */
+    private Maybe $status;
 
+    /**
+     * @param Maybe<Signal\Code> $code
+     * @param Maybe<Signal\ErrorNumber> $errorNumber
+     * @param Maybe<Signal\SendingProcessId> $sendingProcessId
+     * @param Maybe<Signal\SendingProcessUserId> $sendingProcessUserId
+     * @param Maybe<Signal\Status> $status
+     */
     public function __construct(
-        Signal\Code $code = null,
-        Signal\ErrorNumber $errorNumber = null,
-        Signal\SendingProcessId $sendingProcessId = null,
-        Signal\SendingProcessUserId $sendingProcessUserId = null,
-        Signal\Status $status = null
+        Maybe $code,
+        Maybe $errorNumber,
+        Maybe $sendingProcessId,
+        Maybe $sendingProcessUserId,
+        Maybe $status,
     ) {
         $this->code = $code;
         $this->errorNumber = $errorNumber;
@@ -25,27 +42,42 @@ final class Info
         $this->status = $status;
     }
 
-    public function code(): ?Signal\Code
+    /**
+     * @return Maybe<Signal\Code>
+     */
+    public function code(): Maybe
     {
         return $this->code;
     }
 
-    public function errorNumber(): ?Signal\ErrorNumber
+    /**
+     * @return Maybe<Signal\ErrorNumber>
+     */
+    public function errorNumber(): Maybe
     {
         return $this->errorNumber;
     }
 
-    public function sendingProcessId(): ?Signal\SendingProcessId
+    /**
+     * @return Maybe<Signal\SendingProcessId>
+     */
+    public function sendingProcessId(): Maybe
     {
         return $this->sendingProcessId;
     }
 
-    public function sendingProcessUserId(): ?Signal\SendingProcessUserId
+    /**
+     * @return Maybe<Signal\SendingProcessUserId>
+     */
+    public function sendingProcessUserId(): Maybe
     {
         return $this->sendingProcessUserId;
     }
 
-    public function status(): ?Signal\Status
+    /**
+     * @return Maybe<Signal\Status>
+     */
+    public function status(): Maybe
     {
         return $this->status;
     }

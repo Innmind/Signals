@@ -3,6 +3,9 @@ declare(strict_types = 1);
 
 namespace Innmind\Signals\Signal;
 
+/**
+ * @psalm-immutable
+ */
 final class SendingProcessId
 {
     private int $value;
