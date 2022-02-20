@@ -11,52 +11,41 @@ class SignalTest extends TestCase
     /**
      * @dataProvider signals
      */
-    public function testInterface($value, $name)
+    public function testToInt($value, $signal)
     {
-        $signal = Signal::$name();
-
-        $this->assertInstanceOf(Signal::class, $signal);
         $this->assertSame($value, $signal->toInt());
-        $this->assertEquals($signal, Signal::$name());
-        $this->assertTrue($signal->equals(Signal::$name()));
-    }
-
-    public function testEquals()
-    {
-        $this->assertTrue(Signal::illegal()->equals(Signal::illegal()));
-        $this->assertFalse(Signal::illegal()->equals(Signal::terminate()));
     }
 
     public function signals(): array
     {
         return [
-            [\SIGHUP, 'hangup'],
-            [\SIGINT, 'interrupt'],
-            [\SIGQUIT, 'quit'],
-            [\SIGILL, 'illegal'],
-            [\SIGTRAP, 'trap'],
-            [\SIGABRT, 'abort'],
-            [\SIGFPE, 'floatingPointException'],
-            [\SIGBUS, 'bus'],
-            [\SIGSEGV, 'segmentationViolation'],
-            [\SIGSYS, 'system'],
-            [\SIGPIPE, 'pipe'],
-            [\SIGALRM, 'alarm'],
-            [\SIGTERM, 'terminate'],
-            [\SIGURG, 'urgent'],
-            [\SIGTSTP, 'terminalStop'],
-            [\SIGCONT, 'continue'],
-            [\SIGCHLD, 'child'],
-            [\SIGTTIN, 'ttyIn'],
-            [\SIGTTOU, 'ttyOut'],
-            [\SIGIO, 'io'],
-            [\SIGXCPU, 'exceedsCpu'],
-            [\SIGXFSZ, 'exceedsFileSize'],
-            [\SIGVTALRM, 'virtualTimerExpired'],
-            [\SIGPROF, 'profilingTimerExpired'],
-            [\SIGWINCH, 'terminalWindowsSizeChanged'],
-            [\SIGUSR1, 'userDefinedSignal1'],
-            [\SIGUSR2, 'userDefinedSignal2'],
+            [\SIGHUP, Signal::hangup],
+            [\SIGINT, Signal::interrupt],
+            [\SIGQUIT, Signal::quit],
+            [\SIGILL, Signal::illegal],
+            [\SIGTRAP, Signal::trap],
+            [\SIGABRT, Signal::abort],
+            [\SIGFPE, Signal::floatingPointException],
+            [\SIGBUS, Signal::bus],
+            [\SIGSEGV, Signal::segmentationViolation],
+            [\SIGSYS, Signal::system],
+            [\SIGPIPE, Signal::pipe],
+            [\SIGALRM, Signal::alarm],
+            [\SIGTERM, Signal::terminate],
+            [\SIGURG, Signal::urgent],
+            [\SIGTSTP, Signal::terminalStop],
+            [\SIGCONT, Signal::continue],
+            [\SIGCHLD, Signal::child],
+            [\SIGTTIN, Signal::ttyIn],
+            [\SIGTTOU, Signal::ttyOut],
+            [\SIGIO, Signal::io],
+            [\SIGXCPU, Signal::exceedsCpu],
+            [\SIGXFSZ, Signal::exceedsFileSize],
+            [\SIGVTALRM, Signal::virtualTimerExpired],
+            [\SIGPROF, Signal::profilingTimerExpired],
+            [\SIGWINCH, Signal::terminalWindowsSizeChanged],
+            [\SIGUSR1, Signal::userDefinedSignal1],
+            [\SIGUSR2, Signal::userDefinedSignal2],
         ];
     }
 }

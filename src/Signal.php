@@ -6,157 +6,66 @@ namespace Innmind\Signals;
 /**
  * @psalm-immutable
  */
-final class Signal
+enum Signal
 {
-    private int $value;
-
-    private function __construct(int $value)
-    {
-        $this->value = $value;
-    }
-
-    public static function hangup(): self
-    {
-        return new self(\SIGHUP);
-    }
-
-    public static function interrupt(): self
-    {
-        return new self(\SIGINT);
-    }
-
-    public static function quit(): self
-    {
-        return new self(\SIGQUIT);
-    }
-
-    public static function illegal(): self
-    {
-        return new self(\SIGILL);
-    }
-
-    public static function trap(): self
-    {
-        return new self(\SIGTRAP);
-    }
-
-    public static function abort(): self
-    {
-        return new self(\SIGABRT);
-    }
-
-    public static function floatingPointException(): self
-    {
-        return new self(\SIGFPE);
-    }
-
-    public static function bus(): self
-    {
-        return new self(\SIGBUS);
-    }
-
-    public static function segmentationViolation(): self
-    {
-        return new self(\SIGSEGV);
-    }
-
-    public static function system(): self
-    {
-        return new self(\SIGSYS);
-    }
-
-    public static function pipe(): self
-    {
-        return new self(\SIGPIPE);
-    }
-
-    public static function alarm(): self
-    {
-        return new self(\SIGALRM);
-    }
-
-    public static function terminate(): self
-    {
-        return new self(\SIGTERM);
-    }
-
-    public static function urgent(): self
-    {
-        return new self(\SIGURG);
-    }
-
-    public static function terminalStop(): self
-    {
-        return new self(\SIGTSTP);
-    }
-
-    public static function continue(): self
-    {
-        return new self(\SIGCONT);
-    }
-
-    public static function child(): self
-    {
-        return new self(\SIGCHLD);
-    }
-
-    public static function ttyIn(): self
-    {
-        return new self(\SIGTTIN);
-    }
-
-    public static function ttyOut(): self
-    {
-        return new self(\SIGTTOU);
-    }
-
-    public static function io(): self
-    {
-        return new self(\SIGIO);
-    }
-
-    public static function exceedsCpu(): self
-    {
-        return new self(\SIGXCPU);
-    }
-
-    public static function exceedsFileSize(): self
-    {
-        return new self(\SIGXFSZ);
-    }
-
-    public static function virtualTimerExpired(): self
-    {
-        return new self(\SIGVTALRM);
-    }
-
-    public static function profilingTimerExpired(): self
-    {
-        return new self(\SIGPROF);
-    }
-
-    public static function terminalWindowsSizeChanged(): self
-    {
-        return new self(\SIGWINCH);
-    }
-
-    public static function userDefinedSignal1(): self
-    {
-        return new self(\SIGUSR1);
-    }
-
-    public static function userDefinedSignal2(): self
-    {
-        return new self(\SIGUSR2);
-    }
-
-    public function equals(self $signal): bool
-    {
-        return $this->value === $signal->value;
-    }
+    case hangup;
+    case interrupt;
+    case quit;
+    case illegal;
+    case trap;
+    case abort;
+    case floatingPointException;
+    case bus;
+    case segmentationViolation;
+    case system;
+    case pipe;
+    case alarm;
+    case terminate;
+    case urgent;
+    case terminalStop;
+    case continue;
+    case child;
+    case ttyIn;
+    case ttyOut;
+    case io;
+    case exceedsCpu;
+    case exceedsFileSize;
+    case virtualTimerExpired;
+    case profilingTimerExpired;
+    case terminalWindowsSizeChanged;
+    case userDefinedSignal1;
+    case userDefinedSignal2;
 
     public function toInt(): int
     {
-        return $this->value;
+        return match ($this) {
+            self::hangup => \SIGHUP,
+            self::interrupt => \SIGINT,
+            self::quit => \SIGQUIT,
+            self::illegal => \SIGILL,
+            self::trap => \SIGTRAP,
+            self::abort => \SIGABRT,
+            self::floatingPointException => \SIGFPE,
+            self::bus => \SIGBUS,
+            self::segmentationViolation => \SIGSEGV,
+            self::system => \SIGSYS,
+            self::pipe => \SIGPIPE,
+            self::alarm => \SIGALRM,
+            self::terminate => \SIGTERM,
+            self::urgent => \SIGURG,
+            self::terminalStop => \SIGTSTP,
+            self::continue => \SIGCONT,
+            self::child => \SIGCHLD,
+            self::ttyIn => \SIGTTIN,
+            self::ttyOut => \SIGTTOU,
+            self::io => \SIGIO,
+            self::exceedsCpu => \SIGXCPU,
+            self::exceedsFileSize => \SIGXFSZ,
+            self::virtualTimerExpired => \SIGVTALRM,
+            self::profilingTimerExpired => \SIGPROF,
+            self::terminalWindowsSizeChanged => \SIGWINCH,
+            self::userDefinedSignal1 => \SIGUSR1,
+            self::userDefinedSignal2 => \SIGUSR2,
+        };
     }
 }

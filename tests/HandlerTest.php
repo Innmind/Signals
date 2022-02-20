@@ -28,13 +28,13 @@ class HandlerTest extends TestCase
 
         $this->fork();
 
-        $this->assertNull($handlers->listen(Signal::child(), function($signal) use (&$order, &$count): void {
-            $this->assertEquals(Signal::child(), $signal);
+        $this->assertNull($handlers->listen(Signal::child, function($signal) use (&$order, &$count): void {
+            $this->assertSame(Signal::child, $signal);
             $order[] = 'first';
             ++$count;
         }));
-        $handlers->listen(Signal::child(), function($signal) use (&$order, &$count): void {
-            $this->assertEquals(Signal::child(), $signal);
+        $handlers->listen(Signal::child, function($signal) use (&$order, &$count): void {
+            $this->assertSame(Signal::child, $signal);
             $order[] = 'second';
             ++$count;
         });
@@ -54,13 +54,13 @@ class HandlerTest extends TestCase
         $this->fork();
 
         $first = function($signal) use (&$order, &$count): void {
-            $this->assertEquals(Signal::child(), $signal);
+            $this->assertSame(Signal::child, $signal);
             $order[] = 'first';
             ++$count;
         };
-        $handlers->listen(Signal::child(), $first);
-        $handlers->listen(Signal::child(), function($signal) use (&$order, &$count): void {
-            $this->assertEquals(Signal::child(), $signal);
+        $handlers->listen(Signal::child, $first);
+        $handlers->listen(Signal::child, function($signal) use (&$order, &$count): void {
+            $this->assertSame(Signal::child, $signal);
             $order[] = 'second';
             ++$count;
         });
@@ -85,13 +85,13 @@ class HandlerTest extends TestCase
             $order[] = 'first';
             ++$count;
         };
-        $handlers->listen(Signal::child(), $listener);
+        $handlers->listen(Signal::child, $listener);
 
         $this->assertNull($handlers->reset());
         $this->assertSame($wasAsync, \pcntl_async_signals());
 
         try {
-            $handlers->listen(Signal::child(), $listener);
+            $handlers->listen(Signal::child, $listener);
             $this->fail('it should throw');
         } catch (\Exception $e) {
             $this->assertInstanceOf(\LogicException::class, $e);
@@ -116,7 +116,7 @@ class HandlerTest extends TestCase
             $order[] = 'first';
             ++$count;
         };
-        $handlers->listen(Signal::child(), $listener);
+        $handlers->listen(Signal::child, $listener);
         $handlers->remove($listener);
 
         $this->assertSame($wasAsync, \pcntl_async_signals());
