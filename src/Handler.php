@@ -61,7 +61,7 @@ final class Handler
             }
         });
         $this->handlers = $handlers->filter(
-            static fn(int $_, Sequence $listeners): bool => !$listeners->empty()
+            static fn(int $_, Sequence $listeners): bool => !$listeners->empty(),
         );
     }
 
