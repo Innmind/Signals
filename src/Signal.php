@@ -36,6 +36,44 @@ enum Signal
     case userDefinedSignal1;
     case userDefinedSignal2;
 
+    /**
+     * @psalm-pure
+     *
+     * @throws \UnhandledMatchError
+     */
+    public static function of(int $signal): self
+    {
+        return match ($signal) {
+            \SIGHUP => self::hangup,
+            \SIGINT => self::interrupt,
+            \SIGQUIT => self::quit,
+            \SIGILL => self::illegal,
+            \SIGTRAP => self::trap,
+            \SIGABRT => self::abort,
+            \SIGFPE => self::floatingPointException,
+            \SIGBUS => self::bus,
+            \SIGSEGV => self::segmentationViolation,
+            \SIGSYS => self::system,
+            \SIGPIPE => self::pipe,
+            \SIGALRM => self::alarm,
+            \SIGTERM => self::terminate,
+            \SIGURG => self::urgent,
+            \SIGTSTP => self::terminalStop,
+            \SIGCONT => self::continue,
+            \SIGCHLD => self::child,
+            \SIGTTIN => self::ttyIn,
+            \SIGTTOU => self::ttyOut,
+            \SIGIO => self::io,
+            \SIGXCPU => self::exceedsCpu,
+            \SIGXFSZ => self::exceedsFileSize,
+            \SIGVTALRM => self::virtualTimerExpired,
+            \SIGPROF => self::profilingTimerExpired,
+            \SIGWINCH => self::terminalWindowsSizeChanged,
+            \SIGUSR1 => self::userDefinedSignal1,
+            \SIGUSR2 => self::userDefinedSignal2,
+        };
+    }
+
     public function toInt(): int
     {
         return match ($this) {

@@ -11,19 +11,15 @@ use Innmind\Immutable\{
 
 final class Handler
 {
-    /** @var Map<int, Sequence<callable(Signal, Info): void>> */
+    /** @var Map<Signal, Sequence<callable(Signal, Info): void>> */
     private Map $handlers;
-    /** @var Map<int, Signal> */
-    private Map $ints;
     private bool $wasAsync;
     private bool $resetted = false;
 
     public function __construct()
     {
-        /** @var Map<int, Sequence<callable(Signal, Info): void>> */
+        /** @var Map<Signal, Sequence<callable(Signal, Info): void>> */
         $this->handlers = Map::of();
-        /** @var Map<int, Signal> */
-        $this->ints = Map::of();
         $this->wasAsync = \pcntl_async_signals();
         \pcntl_async_signals(true);
     }
@@ -39,10 +35,9 @@ final class Handler
 
         $handlers = $this->install($signal);
         $this->handlers = ($this->handlers)(
-            $signal->toInt(),
+            $signal,
             ($handlers)($listener)
         );
-        $this->ints = ($this->ints)($signal->toInt(), $signal);
     }
 
     /**
@@ -51,28 +46,27 @@ final class Handler
     public function remove(callable $listener): void
     {
         $handlers = $this->handlers->map(
-            static fn(int $_, Sequence $listeners): Sequence => $listeners->filter(
+            static fn($_, Sequence $listeners): Sequence => $listeners->filter(
                 static fn(callable $callable): bool => $callable !== $listener,
             ),
         );
-        $_ = $handlers->foreach(static function(int $signal, Sequence $listeners): void {
+        $_ = $handlers->foreach(static function(Signal $signal, Sequence $listeners): void {
             if ($listeners->empty()) {
-                \pcntl_signal($signal, \SIG_DFL); // restore default handler
+                \pcntl_signal($signal->toInt(), \SIG_DFL); // restore default handler
             }
         });
         $this->handlers = $handlers->filter(
-            static fn(int $_, Sequence $listeners): bool => !$listeners->empty(),
+            static fn($_, Sequence $listeners): bool => !$listeners->empty(),
         );
     }
 
     public function reset(): void
     {
-        $_ = $this->handlers->foreach(static function(int $signal): void {
-            \pcntl_signal($signal, \SIG_DFL);
+        $_ = $this->handlers->foreach(static function(Signal $signal): void {
+            \pcntl_signal($signal->toInt(), \SIG_DFL);
         });
         \pcntl_async_signals($this->wasAsync);
         $this->handlers = $this->handlers->clear();
-        $this->ints = $this->ints->clear();
         $this->resetted = true;
     }
 
@@ -83,14 +77,14 @@ final class Handler
     {
         return $this
             ->handlers
-            ->get($signal->toInt())
+            ->get($signal)
             ->match(
                 static fn($listeners) => $listeners,
                 function() use ($signal) {
                     /** @psalm-suppress MissingClosureParamType */
                     \pcntl_signal($signal->toInt(), function(int $signo, $siginfo): void {
                         /** @psalm-suppress MixedArgument */
-                        $this->dispatch($signo, $siginfo);
+                        $this->dispatch(Signal::of($signo), $siginfo);
                     });
 
                     /** @var Sequence<callable(Signal, Info): void> */
@@ -102,7 +96,7 @@ final class Handler
     /**
      * @param mixed $info
      */
-    private function dispatch(int $signal, $info): void
+    private function dispatch(Signal $signal, $info): void
     {
         $info = \is_array($info) ? $info : [];
         /** @psalm-suppress MixedArgument */
@@ -114,24 +108,14 @@ final class Handler
             Maybe::of($info['status'] ?? null)->map(static fn($status) => new Signal\Status($status)),
         );
 
-        /**
-         * @psalm-suppress MissingClosureReturnType
-         * @var callable(callable(Signal, Info): void): void
-         */
-        $call = $this
-            ->ints
-            ->get($signal)
-            ->match(
-                static fn($signal) => static fn(callable $listen) => $listen($signal, $structure),
-                static fn() => static fn() => null,
-            );
-        $_ = $this
+        /** @var Sequence<callable(Signal, Info): void> */
+        $listeners = $this
             ->handlers
             ->get($signal)
             ->match(
                 static fn($listeners) => $listeners,
                 static fn() => Sequence::of(),
-            )
-            ->foreach(static fn(callable $listener) => $call($listener));
+            );
+        $_ = $listeners->foreach(static fn(callable $listener) => $listener($signal, $structure));
     }
 }
