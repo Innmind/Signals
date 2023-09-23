@@ -16,7 +16,7 @@ class SignalTest extends TestCase
         $this->assertSame($value, $signal->toInt());
     }
 
-    public function signals(): array
+    public static function signals(): array
     {
         return [
             [\SIGHUP, Signal::hangup],
