@@ -7,7 +7,7 @@ use Innmind\Signals\{
     Handler,
     Signal,
 };
-use PHPUnit\Framework\TestCase;
+use Innmind\BlackBox\PHPUnit\Framework\TestCase;
 
 class HandlerTest extends TestCase
 {
@@ -29,11 +29,25 @@ class HandlerTest extends TestCase
         $this->fork();
 
         $this->assertNull($handlers->listen(Signal::child, function($signal) use (&$order, &$count): void {
+            static $handled = false;
+
+            if ($handled) {
+                return;
+            }
+
+            $handled = true;
             $this->assertSame(Signal::child, $signal);
             $order[] = 'first';
             ++$count;
         }));
         $handlers->listen(Signal::child, function($signal) use (&$order, &$count): void {
+            static $handled = false;
+
+            if ($handled) {
+                return;
+            }
+
+            $handled = true;
             $this->assertSame(Signal::child, $signal);
             $order[] = 'second';
             ++$count;
