@@ -18,21 +18,23 @@ use Innmind\Immutable\{
  */
 final class Main
 {
-    /** @var Map<Signal, Sequence<callable(Signal, Info): void>> */
-    private Map $handlers;
-    private bool $wasAsync;
-
-    private function __construct()
-    {
-        /** @var Map<Signal, Sequence<callable(Signal, Info): void>> */
-        $this->handlers = Map::of();
-        $this->wasAsync = \pcntl_async_signals();
-        \pcntl_async_signals(true);
+    /**
+     * @param Map<Signal, Sequence<callable(Signal, Info): void>> $handlers
+     */
+    private function __construct(
+        private Map $handlers,
+        private bool $installed,
+        private bool $wasAsync,
+    ) {
     }
 
     public static function install(): self
     {
-        return new self;
+        return new self(
+            Map::of(),
+            false,
+            false,
+        );
     }
 
     /**
@@ -40,6 +42,12 @@ final class Main
      */
     public function listen(Signal $signal, callable $listener): void
     {
+        if (!$this->installed) {
+            $this->wasAsync = \pcntl_async_signals();
+            \pcntl_async_signals(true);
+            $this->installed = true;
+        }
+
         $handlers = $this->installSignal($signal);
         $this->handlers = ($this->handlers)(
             $signal,
@@ -67,6 +75,7 @@ final class Main
         );
 
         if ($this->handlers->empty()) {
+            $this->installed = false;
             \pcntl_async_signals($this->wasAsync);
         }
     }
