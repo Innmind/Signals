@@ -7,7 +7,7 @@ use Innmind\Signals\{
     Handler,
     Signal,
 };
-use PHPUnit\Framework\TestCase;
+use Innmind\BlackBox\PHPUnit\Framework\TestCase;
 
 class HandlerTest extends TestCase
 {
