@@ -137,6 +137,32 @@ class HandlerTest extends TestCase
             });
     }
 
+    public function testRemovedAsyncListenersAreNotCalled(): BlackBox\Proof
+    {
+        return $this
+            ->forAll(Set::of(...Signal::cases()))
+            ->prove(function($signal) {
+                $main = Handler::main();
+                $interceptor = Interceptor::new();
+                $async = $main->async($interceptor);
+
+                $called = 0;
+                $listener = function($in) use ($signal, &$called) {
+                    $this->assertSame($signal, $in);
+                    ++$called;
+                };
+                $async->listen($signal, $listener);
+                $interceptor->dispatch($signal);
+
+                $this->assertSame(1, $called);
+
+                $async->remove($listener);
+                $interceptor->dispatch($signal);
+
+                $this->assertSame(1, $called);
+            });
+    }
+
     private function fork(): void
     {
         if (\pcntl_fork() === 0) {
