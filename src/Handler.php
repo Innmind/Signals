@@ -11,11 +11,18 @@ use Innmind\Signals\{
 
 final class Handler
 {
+    /**
+     * @psalm-mutation-free
+     */
     private function __construct(
         private Main|Async $implementation,
     ) {
     }
 
+    /**
+     * @psalm-pure
+     */
+    #[\NoDiscard]
     public static function main(): self
     {
         return new self(Main::install());
@@ -43,7 +50,9 @@ final class Handler
      * instruct the fiber to terminate.
      *
      * @internal
+     * @psalm-mutation-free
      */
+    #[\NoDiscard]
     public function async(?Interceptor $interceptor = null): self
     {
         return new self(

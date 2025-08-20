@@ -1,5 +1,11 @@
 # Changelog
 
+## [Unreleased]
+
+### Fixed
+
+- Forgot to declare pure methods
+
 ## 4.1.0 - 2025-08-20
 
 ### Changed
