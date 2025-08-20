@@ -19,7 +19,7 @@ class StatusTest extends TestCase
         return $this
             ->forAll(Set::integers())
             ->prove(function(int $int): void {
-                $this->assertSame($int, (new Status($int))->toInt());
+                $this->assertSame($int, Status::of($int)->toInt());
             });
     }
 }

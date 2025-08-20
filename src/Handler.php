@@ -94,13 +94,12 @@ final class Handler
     private function dispatch(Signal $signal, mixed $info): void
     {
         $info = \is_array($info) ? $info : [];
-        /** @psalm-suppress MixedArgument */
-        $structure = new Info(
-            Maybe::of($info['code'] ?? null)->map(static fn($code) => new Signal\Code($code)),
-            Maybe::of($info['errno'] ?? null)->map(static fn($errno) => new Signal\ErrorNumber($errno)),
-            Maybe::of($info['pid'] ?? null)->map(static fn($pid) => new Signal\SendingProcessId($pid)),
-            Maybe::of($info['uid'] ?? null)->map(static fn($uid) => new Signal\SendingProcessUserId($uid)),
-            Maybe::of($info['status'] ?? null)->map(static fn($status) => new Signal\Status($status)),
+        $structure = Info::of(
+            Maybe::of($info['code'] ?? null)->map(Signal\Code::of(...)),
+            Maybe::of($info['errno'] ?? null)->map(Signal\ErrorNumber::of(...)),
+            Maybe::of($info['pid'] ?? null)->map(Signal\SendingProcessId::of(...)),
+            Maybe::of($info['uid'] ?? null)->map(Signal\SendingProcessUserId::of(...)),
+            Maybe::of($info['status'] ?? null)->map(Signal\Status::of(...)),
         );
 
         /** @var Sequence<callable(Signal, Info): void> */
