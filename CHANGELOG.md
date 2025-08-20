@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+### Added
+
+- `Innmind\Signals\Handler::async()` (This is an internal feature for `innmind/async` that may introduce BC breaks in next minor versions)
+
 ### Changed
 
 - These constructors are now private and internal:
