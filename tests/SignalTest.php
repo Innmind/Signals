@@ -4,13 +4,12 @@ declare(strict_types = 1);
 namespace Tests\Innmind\Signals;
 
 use Innmind\Signals\Signal;
-use PHPUnit\Framework\TestCase;
+use Innmind\BlackBox\PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 class SignalTest extends TestCase
 {
-    /**
-     * @dataProvider signals
-     */
+    #[DataProvider('signals')]
     public function testToInt($value, $signal)
     {
         $this->assertSame($value, $signal->toInt());

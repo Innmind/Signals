@@ -4,9 +4,9 @@ declare(strict_types = 1);
 namespace Tests\Innmind\Signals\Signal;
 
 use Innmind\Signals\Signal\SendingProcessUserId;
-use PHPUnit\Framework\TestCase;
 use Innmind\BlackBox\{
     PHPUnit\BlackBox,
+    PHPUnit\Framework\TestCase,
     Set,
 };
 
@@ -14,12 +14,12 @@ class SendingProcessUserIdTest extends TestCase
 {
     use BlackBox;
 
-    public function testInterface()
+    public function testInterface(): BlackBox\Proof
     {
-        $this
-            ->forAll(Set\Integers::any())
-            ->then(function(int $int): void {
-                $this->assertSame($int, (new SendingProcessUserId($int))->toInt());
+        return $this
+            ->forAll(Set::integers())
+            ->prove(function(int $int): void {
+                $this->assertSame($int, SendingProcessUserId::of($int)->toInt());
             });
     }
 }
