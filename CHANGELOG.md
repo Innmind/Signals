@@ -1,5 +1,11 @@
 # Changelog
 
+## [Unreleased]
+
+### Changed
+
+- `Innmind\Signals\Handler` will install its handler function only when first registering a user listener
+
 ## 4.0.0 - 2025-08-20
 
 ### Added
