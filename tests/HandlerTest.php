@@ -20,11 +20,12 @@ class HandlerTest extends TestCase
 
     public function testNothingHappensByDefaultWhenReceivingSignal()
     {
+        $async = \pcntl_async_signals();
         $handler = Handler::main();
 
         $this->fork();
 
-        $this->assertTrue(\pcntl_async_signals());
+        $this->assertSame($async, \pcntl_async_signals());
     }
 
     public function testAllListenersAreCalledInOrderOnSignal()
