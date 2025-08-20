@@ -8,11 +8,16 @@ namespace Innmind\Signals\Signal;
  */
 final class Code
 {
-    private int $value;
-
-    public function __construct(int $value)
+    private function __construct(private int $value)
     {
-        $this->value = $value;
+    }
+
+    /**
+     * @internal
+     */
+    public static function of(int $value): self
+    {
+        return new self($value);
     }
 
     public function toInt(): int

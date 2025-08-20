@@ -19,7 +19,7 @@ class ErrorNumberTest extends TestCase
         return $this
             ->forAll(Set::integers())
             ->prove(function(int $int): void {
-                $this->assertSame($int, (new ErrorNumber($int))->toInt());
+                $this->assertSame($int, ErrorNumber::of($int)->toInt());
             });
     }
 }

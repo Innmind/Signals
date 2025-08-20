@@ -19,7 +19,7 @@ class CodeTest extends TestCase
         return $this
             ->forAll(Set::integers())
             ->prove(function(int $int): void {
-                $this->assertSame($int, (new Code($int))->toInt());
+                $this->assertSame($int, Code::of($int)->toInt());
             });
     }
 }

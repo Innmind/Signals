@@ -1,5 +1,19 @@
 # Changelog
 
+## [Unreleased]
+
+### Changed
+
+- These constructors are now private and internal:
+    - `Innmind\Signals\Info`
+    - `Innmind\Signals\Signal\Code`
+    - `Innmind\Signals\Signal\ErrorNumber`
+    - `Innmind\Signals\Signal\SendingProcessId`
+    - `Innmind\Signals\Signal\SendingProcessUserId`
+    - `Innmind\Signals\Signal\Status`
+- `Innmind\Signals\Handler` constructor is now private, use `::main()` instead
+- Requires `innmind/immutable:~5.18`
+
 ## 3.1.0 - 2023-09-23
 
 ### Added

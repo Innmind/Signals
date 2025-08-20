@@ -13,7 +13,7 @@ class HandlerTest extends TestCase
 {
     public function testNothingHappensByDefaultWhenReceivingSignal()
     {
-        $handler = new Handler;
+        $handler = Handler::main();
 
         $this->fork();
 
@@ -22,7 +22,7 @@ class HandlerTest extends TestCase
 
     public function testAllListenersAreCalledInOrderOnSignal()
     {
-        $handlers = new Handler;
+        $handlers = Handler::main();
         $order = [];
         $count = 0;
 
@@ -61,7 +61,7 @@ class HandlerTest extends TestCase
 
     public function testRemoveSignal()
     {
-        $handlers = new Handler;
+        $handlers = Handler::main();
         $order = [];
         $count = 0;
 
@@ -89,7 +89,7 @@ class HandlerTest extends TestCase
     public function testListenersAddedAfterAResetAreNotCalled()
     {
         $wasAsync = \pcntl_async_signals();
-        $handlers = new Handler;
+        $handlers = Handler::main();
         $order = [];
         $count = 0;
 
@@ -120,7 +120,7 @@ class HandlerTest extends TestCase
     public function testDefaultHandlerRestoredWhenAllListenersRemovedForASignal()
     {
         $wasAsync = \pcntl_async_signals();
-        $handlers = new Handler;
+        $handlers = Handler::main();
         $order = [];
         $count = 0;
 

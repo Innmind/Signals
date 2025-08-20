@@ -19,7 +19,7 @@ class SendingProcessUserIdTest extends TestCase
         return $this
             ->forAll(Set::integers())
             ->prove(function(int $int): void {
-                $this->assertSame($int, (new SendingProcessUserId($int))->toInt());
+                $this->assertSame($int, SendingProcessUserId::of($int)->toInt());
             });
     }
 }
