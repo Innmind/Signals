@@ -14,7 +14,6 @@ final class Handler
     /** @var Map<Signal, Sequence<callable(Signal, Info): void>> */
     private Map $handlers;
     private bool $wasAsync;
-    private bool $resetted = false;
 
     private function __construct()
     {
@@ -34,10 +33,6 @@ final class Handler
      */
     public function listen(Signal $signal, callable $listener): void
     {
-        if ($this->resetted) {
-            throw new \LogicException('Resetted handler is no longer usable');
-        }
-
         $handlers = $this->install($signal);
         $this->handlers = ($this->handlers)(
             $signal,
@@ -63,16 +58,10 @@ final class Handler
         $this->handlers = $handlers->exclude(
             static fn($_, $listeners) => $listeners->empty(),
         );
-    }
 
-    public function reset(): void
-    {
-        $_ = $this->handlers->foreach(static function($signal): void {
-            \pcntl_signal($signal->toInt(), \SIG_DFL);
-        });
-        \pcntl_async_signals($this->wasAsync);
-        $this->handlers = $this->handlers->clear();
-        $this->resetted = true;
+        if ($this->handlers->empty()) {
+            \pcntl_async_signals($this->wasAsync);
+        }
     }
 
     /**

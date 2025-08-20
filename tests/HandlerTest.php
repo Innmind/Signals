@@ -86,37 +86,6 @@ class HandlerTest extends TestCase
         $this->assertSame(['second'], $order);
     }
 
-    public function testListenersAddedAfterAResetAreNotCalled()
-    {
-        $wasAsync = \pcntl_async_signals();
-        $handlers = Handler::main();
-        $order = [];
-        $count = 0;
-
-        $this->fork();
-
-        $listener = static function($signal) use (&$order, &$count): void {
-            $order[] = 'first';
-            ++$count;
-        };
-        $handlers->listen(Signal::child, $listener);
-
-        $this->assertNull($handlers->reset());
-        $this->assertSame($wasAsync, \pcntl_async_signals());
-
-        try {
-            $handlers->listen(Signal::child, $listener);
-            $this->fail('it should throw');
-        } catch (\Exception $e) {
-            $this->assertInstanceOf(\LogicException::class, $e);
-        }
-
-        \sleep(2); // wait for child to stop
-
-        $this->assertSame(0, $count);
-        $this->assertSame([], $order);
-    }
-
     public function testDefaultHandlerRestoredWhenAllListenersRemovedForASignal()
     {
         $wasAsync = \pcntl_async_signals();
