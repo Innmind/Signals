@@ -14,6 +14,10 @@
 - `Innmind\Signals\Handler` constructor is now private, use `::main()` instead
 - Requires `innmind/immutable:~5.18`
 
+### Removed
+
+- `Innmind\Signals\Handler::reset()`
+
 ## 3.1.0 - 2023-09-23
 
 ### Added
