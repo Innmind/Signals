@@ -51,23 +51,23 @@ final class Handler
     public function remove(callable $listener): void
     {
         $handlers = $this->handlers->map(
-            static fn($_, Sequence $listeners): Sequence => $listeners->filter(
-                static fn(callable $callable): bool => $callable !== $listener,
+            static fn($_, $listeners) => $listeners->exclude(
+                static fn($callable) => $callable === $listener,
             ),
         );
-        $_ = $handlers->foreach(static function(Signal $signal, Sequence $listeners): void {
+        $_ = $handlers->foreach(static function($signal, $listeners): void {
             if ($listeners->empty()) {
                 \pcntl_signal($signal->toInt(), \SIG_DFL); // restore default handler
             }
         });
-        $this->handlers = $handlers->filter(
-            static fn($_, Sequence $listeners): bool => !$listeners->empty(),
+        $this->handlers = $handlers->exclude(
+            static fn($_, $listeners) => $listeners->empty(),
         );
     }
 
     public function reset(): void
     {
-        $_ = $this->handlers->foreach(static function(Signal $signal): void {
+        $_ = $this->handlers->foreach(static function($signal): void {
             \pcntl_signal($signal->toInt(), \SIG_DFL);
         });
         \pcntl_async_signals($this->wasAsync);
@@ -83,17 +83,16 @@ final class Handler
         return $this
             ->handlers
             ->get($signal)
-            ->match(
-                static fn($listeners) => $listeners,
-                function() use ($signal) {
-                    \pcntl_signal($signal->toInt(), function(int $signo, mixed $siginfo): void {
-                        $this->dispatch(Signal::of($signo), $siginfo);
-                    });
+            ->otherwise(function() use ($signal) {
+                \pcntl_signal($signal->toInt(), function($signo, $siginfo): void {
+                    $this->dispatch(Signal::of($signo), $siginfo);
+                });
 
-                    /** @var Sequence<callable(Signal, Info): void> */
-                    return Sequence::of();
-                },
-            );
+                /** @var Maybe<Sequence<callable(Signal, Info): void>> */
+                return Maybe::nothing();
+            })
+            ->toSequence()
+            ->flatMap(static fn($listeners) => $listeners);
     }
 
     private function dispatch(Signal $signal, mixed $info): void
@@ -107,14 +106,11 @@ final class Handler
             Maybe::of($info['status'] ?? null)->map(Signal\Status::of(...)),
         );
 
-        /** @var Sequence<callable(Signal, Info): void> */
-        $listeners = $this
+        $_ = $this
             ->handlers
             ->get($signal)
-            ->match(
-                static fn($listeners) => $listeners,
-                static fn() => Sequence::of(),
-            );
-        $_ = $listeners->foreach(static fn(callable $listener) => $listener($signal, $structure));
+            ->toSequence()
+            ->flatMap(static fn($listeners) => $listeners)
+            ->foreach(static fn($listener) => $listener($signal, $structure));
     }
 }

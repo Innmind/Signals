@@ -12,6 +12,7 @@
     - `Innmind\Signals\Signal\SendingProcessUserId`
     - `Innmind\Signals\Signal\Status`
 - `Innmind\Signals\Handler` constructor is now private, use `::main()` instead
+- Requires `innmind/immutable:~5.18`
 
 ## 3.1.0 - 2023-09-23
 
