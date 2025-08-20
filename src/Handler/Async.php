@@ -15,12 +15,19 @@ use Innmind\Signals\{
  */
 final class Async
 {
+    /**
+     * @psalm-mutation-free
+     */
     private function __construct(
         private Handler $parent,
         private ?Interceptor $interceptor,
     ) {
     }
 
+    /**
+     * @psalm-pure
+     */
+    #[\NoDiscard]
     public static function new(Handler $parent, ?Interceptor $interceptor): self
     {
         return new self($parent, $interceptor);
