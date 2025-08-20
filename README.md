@@ -35,6 +35,4 @@ $handler->listen(Signal::interrupt, function(Signal $signal, Info $info): void {
 
 When above script is executed in a terminal and you do a `ctrl + c` to stop the process it will print `foobar` instead of stopping the script.
 
-**Important**: when using handlers in a program that use `pcntl_fork`, remember to reset the handler via `$handler->reset()` in the child process to avoid both processes to call the listeners. Once resetted a handler can no longer be used, you need to build a new instance of it.
-
 If for some reason you need to remove a handler (for example when a child process ended) you can call `$handler->remove($listener)` (remove the listener for all signals).
