@@ -6,11 +6,18 @@ namespace Tests\Innmind\Signals;
 use Innmind\Signals\{
     Handler,
     Signal,
+    Async\Interceptor,
 };
-use Innmind\BlackBox\PHPUnit\Framework\TestCase;
+use Innmind\BlackBox\{
+    PHPUnit\BlackBox,
+    PHPUnit\Framework\TestCase,
+    Set,
+};
 
 class HandlerTest extends TestCase
 {
+    use BlackBox;
+
     public function testNothingHappensByDefaultWhenReceivingSignal()
     {
         $handler = Handler::main();
@@ -108,6 +115,52 @@ class HandlerTest extends TestCase
 
         $this->assertSame(0, $count);
         $this->assertSame([], $order);
+    }
+
+    public function testAsyncHandlers(): BlackBox\Proof
+    {
+        return $this
+            ->forAll(Set::of(...Signal::cases()))
+            ->prove(function($signal) {
+                $main = Handler::main();
+                $interceptor = Interceptor::new();
+                $async = $main->async($interceptor);
+
+                $called = false;
+                $async->listen($signal, function($in) use ($signal, &$called) {
+                    $this->assertSame($signal, $in);
+                    $called = true;
+                });
+                $interceptor->dispatch($signal);
+
+                $this->assertTrue($called);
+            });
+    }
+
+    public function testRemovedAsyncListenersAreNotCalled(): BlackBox\Proof
+    {
+        return $this
+            ->forAll(Set::of(...Signal::cases()))
+            ->prove(function($signal) {
+                $main = Handler::main();
+                $interceptor = Interceptor::new();
+                $async = $main->async($interceptor);
+
+                $called = 0;
+                $listener = function($in) use ($signal, &$called) {
+                    $this->assertSame($signal, $in);
+                    ++$called;
+                };
+                $async->listen($signal, $listener);
+                $interceptor->dispatch($signal);
+
+                $this->assertSame(1, $called);
+
+                $async->remove($listener);
+                $interceptor->dispatch($signal);
+
+                $this->assertSame(1, $called);
+            });
     }
 
     private function fork(): void
