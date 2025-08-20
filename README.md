@@ -21,7 +21,7 @@ use Innmind\Signals\{
     Info,
 };
 
-$handler = new Handler; // automatically enable async signal at instanciation
+$handler = Handler::main(); // automatically enable async signal at instanciation
 
 $handler->listen(Signal::interrupt, function(Signal $signal, Info $info): void {
     echo 'foo';

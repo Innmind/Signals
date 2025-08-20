@@ -11,6 +11,7 @@
     - `Innmind\Signals\Signal\SendingProcessId`
     - `Innmind\Signals\Signal\SendingProcessUserId`
     - `Innmind\Signals\Signal\Status`
+- `Innmind\Signals\Handler` constructor is now private, use `::main()` instead
 
 ## 3.1.0 - 2023-09-23
 

@@ -16,12 +16,17 @@ final class Handler
     private bool $wasAsync;
     private bool $resetted = false;
 
-    public function __construct()
+    private function __construct()
     {
         /** @var Map<Signal, Sequence<callable(Signal, Info): void>> */
         $this->handlers = Map::of();
         $this->wasAsync = \pcntl_async_signals();
         \pcntl_async_signals(true);
+    }
+
+    public static function main(): self
+    {
+        return new self;
     }
 
     /**
