@@ -19,6 +19,8 @@ use Innmind\Immutable\{
 final class Main
 {
     /**
+     * @psalm-mutation-free
+     *
      * @param Map<Signal, Sequence<callable(Signal, Info): void>> $handlers
      */
     private function __construct(
@@ -28,6 +30,10 @@ final class Main
     ) {
     }
 
+    /**
+     * @psalm-pure
+     */
+    #[\NoDiscard]
     public static function install(): self
     {
         return new self(
