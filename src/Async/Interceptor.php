@@ -19,6 +19,8 @@ use Innmind\Immutable\{
 final class Interceptor
 {
     /**
+     * @psalm-mutation-free
+     *
      * @param Map<Signal, Sequence<callable(Signal, Info): void>> $handlers
      */
     private function __construct(
@@ -26,6 +28,9 @@ final class Interceptor
     ) {
     }
 
+    /**
+     * @psalm-pure
+     */
     public static function new(): self
     {
         return new self(Map::of());
