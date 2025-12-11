@@ -125,7 +125,7 @@ class HandlerTest extends TestCase
             ->prove(function($signal) {
                 $main = Handler::main();
                 $interceptor = Interceptor::new();
-                $async = $main->async($interceptor);
+                $async = Handler::async($main, $interceptor);
 
                 $called = false;
                 $async->listen($signal, function($in) use ($signal, &$called) {
@@ -145,7 +145,7 @@ class HandlerTest extends TestCase
             ->prove(function($signal) {
                 $main = Handler::main();
                 $interceptor = Interceptor::new();
-                $async = $main->async($interceptor);
+                $async = Handler::async($main, $interceptor);
 
                 $called = 0;
                 $listener = function($in) use ($signal, &$called) {

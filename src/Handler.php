@@ -29,6 +29,24 @@ final class Handler
     }
 
     /**
+     * This is intended to build a child handler inside a Fiber.
+     * The interceptor allows to emulate a signals to send a fake signal to
+     * instruct the fiber to terminate.
+     *
+     * @internal
+     * @psalm-mutation-free
+     */
+    #[\NoDiscard]
+    public static function async(
+        self $signals,
+        ?Interceptor $interceptor = null,
+    ): self {
+        return new self(
+            Async::new($signals, $interceptor),
+        );
+    }
+
+    /**
      * @param callable(Signal, Info): void $listener
      */
     public function listen(Signal $signal, callable $listener): void
@@ -42,21 +60,5 @@ final class Handler
     public function remove(callable $listener): void
     {
         $this->implementation->remove($listener);
-    }
-
-    /**
-     * This is intended to build a child handler inside a Fiber.
-     * The interceptor allows to emulate a signals to send a fake signal to
-     * instruct the fiber to terminate.
-     *
-     * @internal
-     * @psalm-mutation-free
-     */
-    #[\NoDiscard]
-    public function async(?Interceptor $interceptor = null): self
-    {
-        return new self(
-            Async::new($this, $interceptor),
-        );
     }
 }
