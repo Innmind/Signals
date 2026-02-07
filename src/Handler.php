@@ -8,6 +8,10 @@ use Innmind\Signals\{
     Handler\Async,
     Async\Interceptor,
 };
+use Innmind\Immutable\{
+    Attempt,
+    SideEffect,
+};
 
 final class Handler
 {
@@ -48,17 +52,23 @@ final class Handler
 
     /**
      * @param callable(Signal, Info): void $listener
+     *
+     * @return Attempt<SideEffect>
      */
-    public function listen(Signal $signal, callable $listener): void
+    #[\NoDiscard]
+    public function listen(Signal $signal, callable $listener): Attempt
     {
-        $this->implementation->listen($signal, $listener);
+        return $this->implementation->listen($signal, $listener);
     }
 
     /**
      * @param callable(Signal, Info): void $listener
+     *
+     * @return Attempt<SideEffect>
      */
-    public function remove(callable $listener): void
+    #[\NoDiscard]
+    public function remove(callable $listener): Attempt
     {
-        $this->implementation->remove($listener);
+        return $this->implementation->remove($listener);
     }
 }

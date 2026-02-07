@@ -6,6 +6,8 @@
 
 - Requires PHP `8.4`
 - Requires `innmind/immutable:~6.0`
+- `Innmind\Signals\Handler::listen()` now returns an `Innmind\Immutable\Attempt`
+- `Innmind\Signals\Handler::remove()` now returns an `Innmind\Immutable\Attempt`
 
 ## 4.1.1 - 2025-08-20
 
