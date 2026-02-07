@@ -8,6 +8,10 @@ use Innmind\Signals\{
     Handler\Async,
     Async\Interceptor,
 };
+use Innmind\Immutable\{
+    Attempt,
+    SideEffect,
+};
 
 final class Handler
 {
@@ -29,22 +33,6 @@ final class Handler
     }
 
     /**
-     * @param callable(Signal, Info): void $listener
-     */
-    public function listen(Signal $signal, callable $listener): void
-    {
-        $this->implementation->listen($signal, $listener);
-    }
-
-    /**
-     * @param callable(Signal, Info): void $listener
-     */
-    public function remove(callable $listener): void
-    {
-        $this->implementation->remove($listener);
-    }
-
-    /**
      * This is intended to build a child handler inside a Fiber.
      * The interceptor allows to emulate a signals to send a fake signal to
      * instruct the fiber to terminate.
@@ -53,10 +41,34 @@ final class Handler
      * @psalm-mutation-free
      */
     #[\NoDiscard]
-    public function async(?Interceptor $interceptor = null): self
-    {
+    public static function async(
+        self $signals,
+        ?Interceptor $interceptor = null,
+    ): self {
         return new self(
-            Async::new($this, $interceptor),
+            Async::new($signals, $interceptor),
         );
+    }
+
+    /**
+     * @param callable(Signal, Info): void $listener
+     *
+     * @return Attempt<SideEffect>
+     */
+    #[\NoDiscard]
+    public function listen(Signal $signal, callable $listener): Attempt
+    {
+        return $this->implementation->listen($signal, $listener);
+    }
+
+    /**
+     * @param callable(Signal, Info): void $listener
+     *
+     * @return Attempt<SideEffect>
+     */
+    #[\NoDiscard]
+    public function remove(callable $listener): Attempt
+    {
+        return $this->implementation->remove($listener);
     }
 }

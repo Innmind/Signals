@@ -11,6 +11,8 @@ use Innmind\Immutable\{
     Map,
     Sequence,
     Maybe,
+    Attempt,
+    SideEffect,
 };
 
 /**
@@ -19,6 +21,8 @@ use Innmind\Immutable\{
 final class Interceptor
 {
     /**
+     * @psalm-mutation-free
+     *
      * @param Map<Signal, Sequence<callable(Signal, Info): void>> $handlers
      */
     private function __construct(
@@ -26,6 +30,9 @@ final class Interceptor
     ) {
     }
 
+    /**
+     * @psalm-pure
+     */
     public static function new(): self
     {
         return new self(Map::of());
@@ -59,7 +66,10 @@ final class Interceptor
         );
     }
 
-    public function dispatch(Signal $signal): void
+    /**
+     * @return Attempt<SideEffect>
+     */
+    public function dispatch(Signal $signal): Attempt
     {
         /** @psalm-suppress MixedArgumentTypeCoercion */
         $info = Info::of(
@@ -69,11 +79,16 @@ final class Interceptor
             Maybe::nothing(),
             Maybe::nothing(),
         );
-        $_ = $this
+
+        return $this
             ->handlers
             ->get($signal)
             ->toSequence()
             ->flatMap(static fn($listeners) => $listeners)
-            ->foreach(static fn($listen) => $listen($signal, $info));
+            ->map(static fn($listen) => static fn() => $listen($signal, $info))
+            ->sink(SideEffect::identity)
+            ->attempt(static fn($_, $listen) => Attempt::of($listen)->map(
+                static fn() => $_,
+            ));
     }
 }

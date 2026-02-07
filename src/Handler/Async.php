@@ -9,6 +9,10 @@ use Innmind\Signals\{
     Info,
     Async\Interceptor,
 };
+use Innmind\Immutable\{
+    Attempt,
+    SideEffect,
+};
 
 /**
  * @internal
@@ -35,19 +39,35 @@ final class Async
 
     /**
      * @param callable(Signal, Info): void $listener
+     *
+     * @return Attempt<SideEffect>
      */
-    public function listen(Signal $signal, callable $listener): void
+    public function listen(Signal $signal, callable $listener): Attempt
     {
-        $this->parent->listen($signal, $listener);
-        $this->interceptor?->listen($signal, $listener);
+        return $this
+            ->parent
+            ->listen($signal, $listener)
+            ->map(function($_) use ($signal, $listener) {
+                $this->interceptor?->listen($signal, $listener);
+
+                return $_;
+            });
     }
 
     /**
      * @param callable(Signal, Info): void $listener
+     *
+     * @return Attempt<SideEffect>
      */
-    public function remove(callable $listener): void
+    public function remove(callable $listener): Attempt
     {
-        $this->parent->remove($listener);
-        $this->interceptor?->remove($listener);
+        return $this
+            ->parent
+            ->remove($listener)
+            ->map(function($_) use ($listener) {
+                $this->interceptor?->remove($listener);
+
+                return $_;
+            });
     }
 }
