@@ -11,6 +11,8 @@ use Innmind\Immutable\{
     Sequence,
     Map,
     Maybe,
+    Attempt,
+    SideEffect,
 };
 
 /**
@@ -45,8 +47,10 @@ final class Main
 
     /**
      * @param callable(Signal, Info): void $listener
+     *
+     * @return Attempt<SideEffect>
      */
-    public function listen(Signal $signal, callable $listener): void
+    public function listen(Signal $signal, callable $listener): Attempt
     {
         if (!$this->installed) {
             $this->wasAsync = \pcntl_async_signals();
@@ -54,56 +58,85 @@ final class Main
             $this->installed = true;
         }
 
-        $handlers = $this->installSignal($signal);
-        $this->handlers = ($this->handlers)(
-            $signal,
-            ($handlers)($listener)
-        );
+        return $this
+            ->installSignal($signal)
+            ->map(function($handlers) use ($signal, $listener) {
+                $this->handlers = ($this->handlers)(
+                    $signal,
+                    ($handlers)($listener),
+                );
+
+                return SideEffect::identity;
+            });
     }
 
     /**
      * @param callable(Signal, Info): void $listener
+     *
+     * @return Attempt<SideEffect>
      */
-    public function remove(callable $listener): void
+    public function remove(callable $listener): Attempt
     {
         $handlers = $this->handlers->map(
             static fn($_, $listeners) => $listeners->exclude(
                 static fn($callable) => $callable === $listener,
             ),
         );
-        $_ = $handlers->foreach(static function($signal, $listeners): void {
-            if ($listeners->empty()) {
-                \pcntl_signal($signal->toInt(), \SIG_DFL); // restore default handler
-            }
-        });
-        $this->handlers = $handlers->exclude(
-            static fn($_, $listeners) => $listeners->empty(),
-        );
 
-        if ($this->handlers->empty()) {
-            $this->installed = false;
-            \pcntl_async_signals($this->wasAsync);
-        }
+        return $handlers
+            ->toSequence()
+            ->sink(SideEffect::identity)
+            ->attempt(static function($_, $installed) {
+                if ($installed->value()->empty()) {
+                    $uninstalled = \pcntl_signal(
+                        $installed->key()->toInt(),
+                        \SIG_DFL,
+                    ); // restore default handler
+
+                    if (!$uninstalled) {
+                        return Attempt::error(new \RuntimeException('Failed to restore default handler'));
+                    }
+                }
+
+                return Attempt::result($_);
+            })
+            ->map(function($_) use ($handlers) {
+                $this->handlers = $handlers->exclude(
+                    static fn($_, $listeners) => $listeners->empty(),
+                );
+
+                return $_;
+            })
+            ->map(function($_) {
+                if ($this->handlers->empty()) {
+                    $this->installed = false;
+                    \pcntl_async_signals($this->wasAsync);
+                }
+
+                return $_;
+            });
     }
 
     /**
-     * @return Sequence<callable(Signal, Info): void>
+     * @return Attempt<Sequence<callable(Signal, Info): void>>
      */
-    private function installSignal(Signal $signal): Sequence
+    private function installSignal(Signal $signal): Attempt
     {
         return $this
             ->handlers
             ->get($signal)
-            ->otherwise(function() use ($signal) {
-                \pcntl_signal($signal->toInt(), function($signo, $siginfo): void {
+            ->attempt(static fn() => new \Exception('Signal not installed'))
+            ->recover(function() use ($signal) {
+                $installed = \pcntl_signal($signal->toInt(), function($signo, $siginfo): void {
                     $this->dispatch(Signal::of($signo), $siginfo);
                 });
 
-                /** @var Maybe<Sequence<callable(Signal, Info): void>> */
-                return Maybe::nothing();
-            })
-            ->toSequence()
-            ->flatMap(static fn($listeners) => $listeners);
+                if (!$installed) {
+                    return Attempt::error(new \RuntimeException('Failed to install signal listener'));
+                }
+
+                return Attempt::result(Sequence::of());
+            });
     }
 
     private function dispatch(Signal $signal, mixed $info): void

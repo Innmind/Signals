@@ -8,6 +8,7 @@ use Innmind\Signals\{
     Signal,
     Async\Interceptor,
 };
+use Innmind\Immutable\SideEffect;
 use Innmind\BlackBox\{
     PHPUnit\BlackBox,
     PHPUnit\Framework\TestCase,
@@ -36,19 +37,24 @@ class HandlerTest extends TestCase
 
         $this->fork();
 
-        $this->assertNull($handlers->listen(Signal::child, function($signal) use (&$order, &$count): void {
-            static $handled = false;
+        $this->assertInstanceOf(
+            SideEffect::class,
+            $handlers
+                ->listen(Signal::child, function($signal) use (&$order, &$count): void {
+                    static $handled = false;
 
-            if ($handled) {
-                return;
-            }
+                    if ($handled) {
+                        return;
+                    }
 
-            $handled = true;
-            $this->assertSame(Signal::child, $signal);
-            $order[] = 'first';
-            ++$count;
-        }));
-        $handlers->listen(Signal::child, function($signal) use (&$order, &$count): void {
+                    $handled = true;
+                    $this->assertSame(Signal::child, $signal);
+                    $order[] = 'first';
+                    ++$count;
+                })
+                ->unwrap(),
+        );
+        $_ = $handlers->listen(Signal::child, function($signal) use (&$order, &$count): void {
             static $handled = false;
 
             if ($handled) {
@@ -59,7 +65,7 @@ class HandlerTest extends TestCase
             $this->assertSame(Signal::child, $signal);
             $order[] = 'second';
             ++$count;
-        });
+        })->unwrap();
 
         \sleep(2); // wait for child to stop
 
@@ -80,17 +86,20 @@ class HandlerTest extends TestCase
             $order[] = 'first';
             ++$count;
         };
-        $handlers->listen(Signal::child, $first);
-        $handlers->listen(Signal::child, function($signal) use (&$order, &$count): void {
+        $_ = $handlers->listen(Signal::child, $first)->unwrap();
+        $_ = $handlers->listen(Signal::child, function($signal) use (&$order, &$count): void {
             $this->assertSame(Signal::child, $signal);
             $order[] = 'second';
             ++$count;
-        });
-        $this->assertNull($handlers->remove($first));
+        })->unwrap();
+        $this->assertInstanceOf(
+            SideEffect::class,
+            $handlers->remove($first)->unwrap(),
+        );
 
         \sleep(2); // wait for child to stop
 
-        $this->assertSame(1, $count);
+        $this->assertSame(1, $count, \implode(', ', $order));
         $this->assertSame(['second'], $order);
     }
 
@@ -107,8 +116,8 @@ class HandlerTest extends TestCase
             $order[] = 'first';
             ++$count;
         };
-        $handlers->listen(Signal::child, $listener);
-        $handlers->remove($listener);
+        $_ = $handlers->listen(Signal::child, $listener)->unwrap();
+        $_ = $handlers->remove($listener)->unwrap();
 
         $this->assertSame($wasAsync, \pcntl_async_signals());
 
@@ -125,13 +134,13 @@ class HandlerTest extends TestCase
             ->prove(function($signal) {
                 $main = Handler::main();
                 $interceptor = Interceptor::new();
-                $async = $main->async($interceptor);
+                $async = Handler::async($main, $interceptor);
 
                 $called = false;
-                $async->listen($signal, function($in) use ($signal, &$called) {
+                $_ = $async->listen($signal, function($in) use ($signal, &$called) {
                     $this->assertSame($signal, $in);
                     $called = true;
-                });
+                })->unwrap();
                 $interceptor->dispatch($signal);
 
                 $this->assertTrue($called);
@@ -145,19 +154,19 @@ class HandlerTest extends TestCase
             ->prove(function($signal) {
                 $main = Handler::main();
                 $interceptor = Interceptor::new();
-                $async = $main->async($interceptor);
+                $async = Handler::async($main, $interceptor);
 
                 $called = 0;
                 $listener = function($in) use ($signal, &$called) {
                     $this->assertSame($signal, $in);
                     ++$called;
                 };
-                $async->listen($signal, $listener);
+                $_ = $async->listen($signal, $listener)->unwrap();
                 $interceptor->dispatch($signal);
 
                 $this->assertSame(1, $called);
 
-                $async->remove($listener);
+                $_ = $async->remove($listener)->unwrap();
                 $interceptor->dispatch($signal);
 
                 $this->assertSame(1, $called);
