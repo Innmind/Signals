@@ -99,7 +99,7 @@ class HandlerTest extends TestCase
 
         \sleep(2); // wait for child to stop
 
-        $this->assertSame(1, $count);
+        $this->assertSame(1, $count, \implode(', ', $order));
         $this->assertSame(['second'], $order);
     }
 
