@@ -23,16 +23,20 @@ use Innmind\Signals\{
 
 $handler = Handler::main(); // automatically enable async signal on first `->listen()` call
 
-$handler->listen(Signal::interrupt, function(Signal $signal, Info $info): void {
-    echo 'foo';
-});
-$handler->listen(Signal::interrupt, function(Signal $signal, Info $info): void {
-    echo 'bar';
-});
+$handler
+    ->listen(Signal::interrupt, function(Signal $signal, Info $info): void {
+        echo 'foo';
+    })
+    ->unwrap();
+$handler
+    ->listen(Signal::interrupt, function(Signal $signal, Info $info): void {
+        echo 'bar';
+    })
+    ->unwrap();
 
 // do some logic here
 ```
 
 When above script is executed in a terminal and you do a `ctrl + c` to stop the process it will print `foobar` instead of stopping the script.
 
-If for some reason you need to remove a handler (for example when a child process ended) you can call `$handler->remove($listener)` (remove the listener for all signals).
+If for some reason you need to remove a handler (for example when a child process ended) you can call `$handler->remove($listener)->unwrap()` (remove the listener for all signals).
