@@ -1,6 +1,6 @@
 # Signals
 
-[![Build Status](https://github.com/innmind/signals/workflows/CI/badge.svg?branch=master)](https://github.com/innmind/signals/actions?query=workflow%3ACI)
+[![CI](https://github.com/Innmind/Signals/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/Innmind/Signals/actions/workflows/ci.yml)
 [![codecov](https://codecov.io/gh/innmind/signals/branch/develop/graph/badge.svg)](https://codecov.io/gh/innmind/signals)
 [![Type Coverage](https://shepherd.dev/github/innmind/signals/coverage.svg)](https://shepherd.dev/github/innmind/signals)
 
