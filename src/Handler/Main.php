@@ -6,6 +6,7 @@ namespace Innmind\Signals\Handler;
 use Innmind\Signals\{
     Signal,
     Info,
+    Async\Interceptor,
 };
 use Innmind\Immutable\{
     Sequence,
@@ -115,6 +116,14 @@ final class Main
 
                 return $_;
             });
+    }
+
+    /**
+     * @psalm-mutation-free
+     */
+    public function asAsync(?Interceptor $interceptor): Async
+    {
+        return Async::new($this, $interceptor);
     }
 
     /**

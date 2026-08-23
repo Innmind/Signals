@@ -4,7 +4,6 @@ declare(strict_types = 1);
 namespace Innmind\Signals\Handler;
 
 use Innmind\Signals\{
-    Handler,
     Signal,
     Info,
     Async\Interceptor,
@@ -23,7 +22,7 @@ final class Async
      * @psalm-mutation-free
      */
     private function __construct(
-        private Handler $parent,
+        private self|Main $parent,
         private ?Interceptor $interceptor,
     ) {
     }
@@ -32,7 +31,7 @@ final class Async
      * @psalm-pure
      */
     #[\NoDiscard]
-    public static function new(Handler $parent, ?Interceptor $interceptor): self
+    public static function new(self|Main $parent, ?Interceptor $interceptor): self
     {
         return new self($parent, $interceptor);
     }
@@ -69,5 +68,13 @@ final class Async
 
                 return $_;
             });
+    }
+
+    /**
+     * @psalm-mutation-free
+     */
+    public function asAsync(?Interceptor $interceptor): self
+    {
+        return new self($this, $interceptor); // todo return $this when no interceptor ?
     }
 }
