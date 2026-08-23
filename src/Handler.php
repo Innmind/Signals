@@ -46,9 +46,7 @@ final class Handler
         self $signals,
         ?Interceptor $interceptor = null,
     ): self {
-        return new self(
-            Async::new($signals, $interceptor),
-        );
+        return $signals->asAsync($interceptor);
     }
 
     /**
@@ -71,5 +69,19 @@ final class Handler
     public function remove(callable $listener): Attempt
     {
         return $this->implementation->remove($listener);
+    }
+
+    /**
+     * This is intended to build a child handler inside a Fiber.
+     * The interceptor allows to emulate a signals to send a fake signal to
+     * instruct the fiber to terminate.
+     *
+     * @internal
+     * @psalm-mutation-free
+     */
+    #[\NoDiscard]
+    public function asAsync(?Interceptor $interceptor = null): self
+    {
+        return new self($this->implementation->asAsync($interceptor));
     }
 }

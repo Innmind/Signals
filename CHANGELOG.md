@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+### Added
+
+- Internal `Innmind\Signals\Handler::asAsync()`
+
 ### Deprecated
 
 - `Innmind\Signals\Handler::async()`
