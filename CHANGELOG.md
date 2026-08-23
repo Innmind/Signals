@@ -1,5 +1,11 @@
 # Changelog
 
+## [Unreleased]
+
+### Deprecated
+
+- `Innmind\Signals\Handler::async()`
+
 ## 5.1.0 - 2026-08-16
 
 ### Changed

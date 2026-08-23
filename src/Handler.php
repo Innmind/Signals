@@ -38,6 +38,7 @@ final class Handler
      * instruct the fiber to terminate.
      *
      * @internal
+     * @deprecated
      * @psalm-mutation-free
      */
     #[\NoDiscard]
